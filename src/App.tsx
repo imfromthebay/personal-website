@@ -669,12 +669,11 @@ const PersonalWebsite = () => {
               </div>
               <div>
                 <h4 className="text-2xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">Technical Stack</h4>
-                <div className="grid grid-cols-2 gap-x-0 gap-y-1 text-base text-gray-200 dark:text-gray-300">
+                <div className="grid grid-cols-2 gap-x-0 gap-y-1 text-base text-gray-700 dark:text-gray-300">
                   <span>Crowdstrike</span>
                   <span>Intune</span>
                   <span>Jamf</span>
                   <span>Jira</span>
-                  <span>Multiplier</span>
                   <span>Okta</span>
                   <span>SentinelOne</span>
                   <span>Slack</span>
