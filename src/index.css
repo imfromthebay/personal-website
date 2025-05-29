@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply antialiased;
+  }
+  
+  /* Ensure dark mode background covers entire viewport */
+  html.dark,
+  html.dark body {
+    @apply bg-gray-900;
+  }
+  
+  /* Smooth scroll behavior */
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Prevent white flash during scroll in dark mode */
+  @media (prefers-color-scheme: dark) {
+    html {
+      background-color: #111827;
+    }
+  }
+} 
