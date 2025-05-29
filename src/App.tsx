@@ -381,12 +381,12 @@ const PersonalWebsite = () => {
                   {certifications.map((cert, index) => (
                     <div
                       key={cert}
-                      className="bg-white dark:bg-gray-900 p-4 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-800 flex items-center gap-2 min-h-[56px]"
+                      className="bg-white dark:bg-gray-900 p-4 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-800 flex items-center gap-2 min-h-[56px] break-words whitespace-normal min-w-0"
                       style={getStaggerDelay(index)}
                       aria-label={cert}
                     >
                       <Shield className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{cert}</span>
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300 break-words whitespace-normal min-w-0">{cert}</span>
                     </div>
                   ))}
                 </div>
