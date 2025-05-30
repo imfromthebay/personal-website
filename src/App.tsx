@@ -166,7 +166,7 @@ const PersonalWebsite = () => {
     },
     {
       title: 'Enterprise SaaS Management',
-      description: 'I implement and manage 100+ SaaS integrations (Okta, Slack, Jira, Confluence, etc.). I automate user onboarding/offboarding, access reviews, and RBAC. I streamline SaaS procurement, SSO, and security policy enforcement for efficient, secure operations.',
+      description: 'I implement and manage 100+ SaaS integrations (Okta, Slack, Jira, Confluence, etc.). I automate the  user onboarding/offboarding, access reviews, and RBAC. I streamline SaaS procurement, SSO, and security policy enforcement for efficient, secure operations.',
       icon: <Server className="w-8 h-8" />,
       tech: ['Okta', 'Slack', 'Jira', 'Confluence']
     }
@@ -586,33 +586,26 @@ const PersonalWebsite = () => {
                 <div
                   key={index}
                   style={getStaggerDelay(index)}
-                  className={`h-full bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-md hover:shadow-xl focus-within:ring-2 focus-within:ring-blue-500 transition-all duration-300 flex flex-col ${visibleSections.has('services') ? 'animate-fade-in-up' : 'opacity-0'}`}
+                  className={`h-full bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-md hover:shadow-xl focus-within:ring-2 focus-within:ring-blue-500 transition-all duration-300 flex flex-col justify-between ${visibleSections.has('services') ? 'animate-fade-in-up' : 'opacity-0'}`}
                   tabIndex={0}
                   aria-label={service.title}
                 >
-                  <div className="mb-4 text-blue-600 dark:text-blue-400">{service.icon}</div>
-                  <h3 className="text-xl font-semibold mb-2">{service.title}</h3>
-                  <p className="text-base text-gray-600 dark:text-gray-400 mb-4">
-                    {/* Rewrite descriptions for active voice and outcomes */}
-                    {service.title === 'IT Service Desk Deployment & Automation' && (
-                      <>Deployed modern IT service desks from scratch, automating ticketing, approvals, and employee lifecycle. Enabled rapid, secure, and efficient IT operations for 500+ users.</>
-                    )}
-                    {service.title === 'Flowgramming & Integration' && (
-                      <>Designed and implemented workflow automations and no-code solutions, integrating 180+ SaaS apps and APIs. Reduced manual work by 80% and improved system reliability.</>
-                    )}
-                    {service.title === 'Enterprise SaaS Management' && (
-                      <>Managed 100+ SaaS integrations, automated onboarding/offboarding, and enforced security policies. Achieved 99.9% compliance and streamlined SaaS operations.</>
-                    )}
-                  </p>
-                  <div className="flex flex-wrap gap-2 mb-6">
-                    {service.tech.map((tech) => (
-                      <span
-                        key={tech}
-                        className="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full text-xs font-medium"
-                      >
-                        {tech}
-                      </span>
-                    ))}
+                  <div>
+                    <div className="mb-4 text-blue-600 dark:text-blue-400">{service.icon}</div>
+                    <h3 className="text-xl font-semibold mb-2">{service.title}</h3>
+                    <p className="text-base text-gray-600 dark:text-gray-400 mb-4">
+                      {service.description}
+                    </p>
+                    <div className="flex flex-wrap gap-2 mb-6 min-h-[48px] items-start">
+                      {service.tech.map((tech) => (
+                        <span
+                          key={tech}
+                          className="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full text-xs font-medium"
+                        >
+                          {tech}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                   <a
                     href="#contact"
