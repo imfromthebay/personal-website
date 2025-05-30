@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { ChevronDown, Download, Mail, Github, Linkedin, Twitter, Menu, X, Calendar, Clock, ArrowRight, ExternalLink, Shield, Code, Server, Database, Moon, Sun, Terminal, Cpu, GitBranch, Lock, Zap } from 'lucide-react';
 
 const PersonalWebsite = () => {
-  const [activeSection, setActiveSection] = useState('home');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [scrolled, setScrolled] = useState(false);
@@ -52,7 +51,9 @@ const PersonalWebsite = () => {
       }
     `;
     document.head.appendChild(styleSheet);
-    return () => document.head.removeChild(styleSheet);
+    return () => {
+      document.head.removeChild(styleSheet);
+    };
   }, []);
 
   // Handle scroll effects
@@ -230,9 +231,25 @@ const PersonalWebsite = () => {
   };
 
   // Staggered animation helper
-  const getStaggerDelay = (index) => ({
+  const getStaggerDelay = (index: number) => ({
     animationDelay: `${index * 100}ms`
   });
+
+  // Smooth scroll to section
+  const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>, sectionId: string) => {
+    e.preventDefault();
+    const element = document.querySelector(sectionId);
+    if (element) {
+      const navHeight = 64; // Height of the fixed navigation
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - navHeight;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
+  };
 
   return (
     <div className={`min-h-screen ${darkMode ? 'dark' : ''}`}>
@@ -259,7 +276,9 @@ const PersonalWebsite = () => {
                     key={item.name}
                     href={item.href}
                     className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 font-medium"
-                    onClick={() => setActiveSection(item.name.toLowerCase())}
+                    onClick={(e) => {
+                      scrollToSection(e, item.href);
+                    }}
                   >
                     {item.name}
                   </a>
@@ -301,8 +320,8 @@ const PersonalWebsite = () => {
                     key={item.name}
                     href={item.href}
                     className="block px-3 py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
-                    onClick={() => {
-                      setActiveSection(item.name.toLowerCase());
+                    onClick={(e) => {
+                      scrollToSection(e, item.href);
                       setMobileMenuOpen(false);
                     }}
                   >
@@ -773,7 +792,7 @@ const PersonalWebsite = () => {
                     </label>
                     <textarea
                       id="message"
-                      rows="4"
+                      rows={4}
                       className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-400 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-all resize-none"
                       value={formData.message}
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}

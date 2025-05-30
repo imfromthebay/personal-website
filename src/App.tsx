@@ -222,10 +222,17 @@ const PersonalWebsite = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
               <div className="flex items-center">
-                <Terminal className="w-8 h-8 text-blue-600 dark:text-blue-400 mr-2" />
-                <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
-                  Gregory Reznik
-                </span>
+                <button
+                  onClick={scrollToTop}
+                  aria-label="Scroll to top"
+                  tabIndex={0}
+                  className="focus:outline-none focus:ring-2 focus:ring-blue-500 rounded bg-transparent border-none p-0 m-0"
+                  style={{ cursor: 'pointer' }}
+                >
+                  <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+                    Greg Reznik
+                  </span>
+                </button>
               </div>
               
               {/* Desktop Navigation */}
@@ -307,28 +314,38 @@ const PersonalWebsite = () => {
                 <Code className="w-12 h-12 text-blue-600 dark:text-blue-400" />
               </div>
             </div>
-            <h1 className="text-3xl md:text-5xl font-bold mb-6 leading-none overflow-visible break-keep bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
-              Senior IT Systems Engineer
+            <h1 className="text-4xl md:text-6xl font-extrabold mb-4 leading-tight bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+               Modern IT, Automated.
             </h1>
-            <p className="text-xl md:text-2xl text-gray-700 dark:text-gray-300 mb-8">
-              IT Automation • MDM • IDP • Flowgramming
+            <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 mb-3 font-medium">
+              I help fast-growing companies automate, secure, and scale their IT operations.
             </p>
+            <div className="flex flex-wrap justify-center items-center gap-4 mb-8">
+              <img src="/logos/opensea.svg" alt="OpenSea" className="h-8 w-auto opacity-80 grayscale hover:grayscale-0 transition-all" onError={(e) => e.currentTarget.style.display='none'} />
+              <img src="/logos/scribd.svg" alt="Scribd" className="h-8 w-auto opacity-80 grayscale hover:grayscale-0 transition-all" onError={(e) => e.currentTarget.style.display='none'} />
+              <img src="/logos/atlassian.svg" alt="Atlassian" className="h-8 w-auto opacity-80 grayscale hover:grayscale-0 transition-all" onError={(e) => e.currentTarget.style.display='none'} />
+              {/* Add more logos as needed */}
+            </div>
             <p className="text-lg text-gray-600 dark:text-gray-400 mb-12 max-w-2xl mx-auto">
-              Building powerful no-code automation solutions, seamless MDM and IDP integrations, and enterprise system connectivity. Specializing in workflow design and API integration through modern automation platforms.
+              I build powerful no-code automation solutions, seamless MDM and IDP integrations, and enterprise system connectivity. I specialize in workflow design and API integration through modern automation platforms.
             </p>
             <div className="flex flex-wrap gap-4 justify-center">
               <a
                 href="#contact"
-                className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300 flex items-center gap-2"
+                className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold shadow-sm hover:shadow-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transform hover:-translate-y-1 active:scale-95 transition-all duration-300 flex items-center gap-2"
                 onClick={(e) => scrollToSection(e, '#contact')}
+                tabIndex={0}
+                aria-label="Schedule Consultation"
               >
                 <Shield size={20} />
                 Schedule Consultation
               </a>
               <a
                 href="#resume"
-                className="px-8 py-3 border-2 border-gray-800 dark:border-gray-300 text-gray-800 dark:text-gray-300 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-300 hover:text-white dark:hover:text-gray-900 transition-all duration-300 flex items-center gap-2"
+                className="px-8 py-3 border-2 border-gray-800 dark:border-gray-300 text-gray-800 dark:text-gray-300 rounded-lg font-semibold hover:bg-gray-800 dark:hover:bg-gray-300 hover:text-white dark:hover:text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all duration-300 flex items-center gap-2 active:scale-95"
                 onClick={(e) => scrollToSection(e, '#resume')}
+                tabIndex={0}
+                aria-label="View Experience"
               >
                 <GitBranch size={20} />
                 View Experience
@@ -513,25 +530,47 @@ const PersonalWebsite = () => {
             <div className={visibleSections.has('services') ? 'animate-fade-in' : 'opacity-0'}>
               <SectionTitle>Consulting Services</SectionTitle>
             </div>
-            <div className="grid md:grid-cols-3 gap-6 items-stretch">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 items-stretch">
               {services.map((service, index) => (
-                <div key={index} style={getStaggerDelay(index)} className={`h-full ${visibleSections.has('services') ? 'animate-fade-in-up' : 'opacity-0'}`}>
-                  <Card
-                    icon={service.icon}
-                    title={service.title}
-                    description={service.description}
-                    tech={service.tech}
+                <div
+                  key={index}
+                  style={getStaggerDelay(index)}
+                  className={`h-full bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-md hover:shadow-xl focus-within:ring-2 focus-within:ring-blue-500 transition-all duration-300 flex flex-col ${visibleSections.has('services') ? 'animate-fade-in-up' : 'opacity-0'}`}
+                  tabIndex={0}
+                  aria-label={service.title}
+                >
+                  <div className="mb-4 text-blue-600 dark:text-blue-400">{service.icon}</div>
+                  <h3 className="text-xl font-semibold mb-2">{service.title}</h3>
+                  <p className="text-base text-gray-600 dark:text-gray-400 mb-4">
+                    {/* Rewrite descriptions for active voice and outcomes */}
+                    {service.title === 'IT Service Desk Deployment & Automation' && (
+                      <>Deployed modern IT service desks from scratch, automating ticketing, approvals, and employee lifecycle. Enabled rapid, secure, and efficient IT operations for 500+ users.</>
+                    )}
+                    {service.title === 'Flowgramming & Integration' && (
+                      <>Designed and implemented workflow automations and no-code solutions, integrating 180+ SaaS apps and APIs. Reduced manual work by 80% and improved system reliability.</>
+                    )}
+                    {service.title === 'Enterprise SaaS Management' && (
+                      <>Managed 100+ SaaS integrations, automated onboarding/offboarding, and enforced security policies. Achieved 99.9% compliance and streamlined SaaS operations.</>
+                    )}
+                  </p>
+                  <div className="flex flex-wrap gap-2 mb-6">
+                    {service.tech.map((tech) => (
+                      <span
+                        key={tech}
+                        className="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full text-xs font-medium"
+                      >
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                  <a
+                    href="#contact"
+                    className="inline-flex items-center justify-center gap-2 px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold shadow-sm hover:shadow-lg focus:ring-2 focus:ring-blue-500 focus:outline-none active:scale-95 transition-all duration-300 mt-auto"
+                    onClick={(e) => { e.preventDefault(); scrollToSection(e, '#contact'); }}
+                    aria-label={`Learn more about ${service.title}`}
                   >
-                    <Button
-                      variant="gradient"
-                      iconRight={<ArrowRight size={16} className="ml-2" />}
-                      className="w-full justify-center mt-auto"
-                      onClick={(e) => { e.preventDefault(); scrollToSection(e, '#contact'); }}
-                      aria-label={`Learn more about ${service.title}`}
-                    >
-                      Learn More
-                    </Button>
-                  </Card>
+                    Learn More <ArrowRight size={16} className="ml-2" />
+                  </a>
                 </div>
               ))}
             </div>
@@ -565,7 +604,7 @@ const PersonalWebsite = () => {
                   zero-trust security, or automate your IT operations, I&#39;m here to help 
                   transform your technical challenges into competitive advantages.
                 </p>
-                <div className="space-y-4">
+                <div className="mt-8 flex flex-col gap-4">
                   <div className="flex items-center gap-4">
                     <Mail className="text-blue-600 dark:text-blue-400" size={24} />
                     <a href="mailto:gregreznik93@gmail.com" className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
@@ -590,64 +629,84 @@ const PersonalWebsite = () => {
                       github.com/imfromthebay
                     </a>
                   </div>
+                  <div className="flex items-center gap-4">
+                    <Calendar className="text-blue-600 dark:text-blue-400" size={24} />
+                    <a
+                      href="https://calendar.app.google/bzcQZYGQtsoiTdua6"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                      aria-label="Book a meeting on my calendar"
+                    >
+                      Book a Meeting
+                    </a>
+                  </div>
                 </div>
               </div>
               <div className={`${visibleSections.has('contact') ? 'animate-slide-in-right' : 'opacity-0'}`}>
                 <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-800 p-8 transition-colors duration-500">
-                  <div className="mb-6">
-                    <label htmlFor="name" className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
-                      Name <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-400 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-all"
-                      value={formData.name}
-                      onChange={handleFormChange}
-                      placeholder="Your name"
-                    />
-                  </div>
-                  <div className="mb-6">
-                    <label htmlFor="email" className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
-                      Email <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-400 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-all"
-                      value={formData.email}
-                      onChange={handleFormChange}
-                      placeholder="your@email.com"
-                    />
-                  </div>
-                  <div className="mb-6">
-                    <label htmlFor="message" className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
-                      Message <span className="text-red-500">*</span>
-                    </label>
-                    <textarea
-                      id="message"
-                      name="message"
-                      rows={4}
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-400 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-all resize-none"
-                      value={formData.message}
-                      onChange={handleFormChange}
-                      placeholder="Tell me about your project..."
-                    ></textarea>
-                  </div>
-                  <button
-                    type="submit"
-                    className="w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300"
-                  >
-                    Send Secure Message
-                  </button>
-                  <p className="mt-4 text-xs text-gray-500 dark:text-gray-500 text-center">
-                    Your information is encrypted and will never be shared.
-                  </p>
+                  <form aria-label="Contact form" autoComplete="on">
+                    <div className="mb-6">
+                      <label htmlFor="name" className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
+                        Name <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        required
+                        aria-required="true"
+                        aria-label="Name"
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-400 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-all"
+                        value={formData.name}
+                        onChange={handleFormChange}
+                        placeholder="Your name"
+                      />
+                    </div>
+                    <div className="mb-6">
+                      <label htmlFor="email" className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
+                        Email <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        required
+                        aria-required="true"
+                        aria-label="Email"
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-400 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-all"
+                        value={formData.email}
+                        onChange={handleFormChange}
+                        placeholder="your@email.com"
+                      />
+                    </div>
+                    <div className="mb-6">
+                      <label htmlFor="message" className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
+                        Message <span className="text-red-500">*</span>
+                      </label>
+                      <textarea
+                        id="message"
+                        name="message"
+                        rows={4}
+                        required
+                        aria-required="true"
+                        aria-label="Message"
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-400 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-all resize-none"
+                        value={formData.message}
+                        onChange={handleFormChange}
+                        placeholder="Tell me about your project..."
+                      ></textarea>
+                    </div>
+                    <button
+                      type="submit"
+                      className="w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold shadow-sm hover:shadow-lg focus:ring-2 focus:ring-blue-500 focus:outline-none active:scale-95 transition-all duration-300"
+                    >
+                      Send Secure Message
+                    </button>
+                    <p className="mt-4 text-xs text-gray-500 dark:text-gray-500 text-center">
+                      Your information is encrypted and will never be shared.
+                    </p>
+                  </form>
                 </div>
               </div>
             </div>
@@ -655,56 +714,37 @@ const PersonalWebsite = () => {
         </section>
 
         {/* Footer */}
-        <footer className="bg-gray-100 dark:bg-black text-gray-700 dark:text-gray-300 py-8 sm:py-12 border-t border-gray-200 dark:border-gray-800 transition-colors duration-500" role="contentinfo">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-              <div>
-                <h4 className="text-2xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">Quick Links</h4>
-                <ul className="space-y-2">
-                  <li><a href="#home" className="hover:text-blue-400 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600 rounded" onClick={(e) => scrollToSection(e, '#home')}>Home</a></li>
-                  <li><a href="#resume" className="hover:text-blue-400 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600 rounded" onClick={(e) => scrollToSection(e, '#resume')}>Resume</a></li>
-                  <li><a href="#services" className="hover:text-blue-400 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600 rounded" onClick={(e) => scrollToSection(e, '#services')}>Services</a></li>
-                  <li><a href="#contact" className="hover:text-blue-400 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600 rounded" onClick={(e) => scrollToSection(e, '#contact')}>Contact</a></li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="text-2xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">Technical Stack</h4>
-                <div className="grid grid-cols-2 gap-x-0 gap-y-1 text-base text-gray-700 dark:text-gray-300">
-                  <span>Crowdstrike</span>
-                  <span>Intune</span>
-                  <span>Jamf</span>
-                  <span>Jira</span>
-                  <span>Okta</span>
-                  <span>SentinelOne</span>
-                  <span>Slack</span>
-                  <span>Zapier</span>
-                </div>
-              </div>
-              <div>
-                <h4 className="text-2xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">Expertise</h4>
-                <ul className="space-y-2">
-                  <li>Workflow Automation</li>
-                  <li>MDM Deployment</li>
-                  <li>Enterprise Security</li>
-                  <li>Enterprise SaaS</li>
-                </ul>
-              </div>
-            </div>
-            <div className="text-center pt-8 border-t border-gray-800">
-              <p className="mb-4">
-                &copy; 2025 Greg Reznik. All rights reserved. | Built with React &amp; Tailwind CSS
-              </p>
-              <div className="flex justify-center space-x-6">
-                <a href="https://github.com/imfromthebay" className="hover:text-blue-400 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600 rounded" target="_blank" rel="noopener noreferrer">
-                  <Github size={20} />
-                </a>
-                <a href="https://www.linkedin.com/in/gregreznik93/" className="hover:text-blue-400 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600 rounded" target="_blank" rel="noopener noreferrer">
-                  <Linkedin size={20} />
-                </a>
-                <a href="mailto:gregreznik93@gmail.com" className="hover:text-blue-400 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600 rounded">
-                  <Mail size={20} />
-                </a>
-              </div>
+        <footer className="bg-black text-gray-300 py-8 transition-colors duration-500" role="contentinfo">
+          <div className="max-w-3xl mx-auto px-4 flex flex-col items-center">
+            <p className="text-center text-base mb-6">
+              &copy; 2025 Greg Reznik. All rights reserved. &nbsp;|&nbsp; Built with React &amp; Tailwind CSS
+            </p>
+            <div className="flex justify-center gap-8">
+              <a
+                href="https://github.com/imfromthebay"
+                aria-label="GitHub"
+                className="hover:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-600 rounded transition-colors duration-200"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Github size={28} />
+              </a>
+              <a
+                href="https://www.linkedin.com/in/gregreznik93/"
+                aria-label="LinkedIn"
+                className="hover:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-600 rounded transition-colors duration-200"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Linkedin size={28} />
+              </a>
+              <a
+                href="mailto:gregreznik93@gmail.com"
+                aria-label="Email"
+                className="hover:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-600 rounded transition-colors duration-200"
+              >
+                <Mail size={28} />
+              </a>
             </div>
           </div>
         </footer>
