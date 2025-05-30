@@ -154,19 +154,19 @@ const PersonalWebsite = () => {
   const services = [
     {
       title: 'IT Service Desk Deployment & Automation',
-      description: 'Architected and deployed modern IT service desks from scratch, leveraging modern platforms to deliver automated, scalable, and user-friendly support experiences. Automated ticketing, approvals, and employee lifecycle processes for rapid, secure, and efficient IT operations.',
+      description: 'I architect and deploy modern IT service desks from scratch, leveraging modern platforms to deliver automated, scalable, and user-friendly support experiences. I automate ticketing, approvals, and employee lifecycle processes for rapid, secure, and efficient IT operations.',
       icon: <Zap className="w-8 h-8" />,
       tech: ['Jira', 'Slack', 'Linear', 'ClickUp', 'Asana', 'Notion']
     },
     {
       title: 'Flowgramming & Integration',
-      description: 'Expert in designing and implementing complex workflow automations and no-code automation solutions using modern platforms. Specializing in connecting enterprise systems through API integrations, seamless automation between tools, and scalable workflow design.',
+      description: 'I am an expert in designing and implementing complex workflow automations and no-code automation solutions using modern platforms. I specialize in connecting enterprise systems through API integrations, seamless automation between tools, and scalable workflow design.',
       icon: <GitBranch className="w-8 h-8" />,
       tech: ['API Integration', 'Workflow Design', 'Zapier', 'Okta Workflows']
     },
     {
       title: 'Enterprise SaaS Management',
-      description: 'Implemented and managed 100+ SaaS integrations (Okta, Slack, Jira, Confluence, etc.). Automated user onboarding/offboarding, access reviews, and RBAC. Streamlined SaaS procurement, SSO, and security policy enforcement for efficient, secure operations.',
+      description: 'I implement and manage 100+ SaaS integrations (Okta, Slack, Jira, Confluence, etc.). I automate user onboarding/offboarding, access reviews, and RBAC. I streamline SaaS procurement, SSO, and security policy enforcement for efficient, secure operations.',
       icon: <Server className="w-8 h-8" />,
       tech: ['Okta', 'Slack', 'Jira', 'Confluence']
     }
@@ -209,6 +209,57 @@ const PersonalWebsite = () => {
       behavior: 'smooth'
     });
   };
+
+  const portfolio = [
+    {
+      title: 'Enterprise Kubernetes Platform',
+      description: 'I built a multi-tenant Kubernetes platform handling 10K+ deployments daily with 99.99% uptime',
+      tech: ['Kubernetes', 'Istio', 'Prometheus', 'GitOps'],
+      metrics: '10K+ deployments/day',
+      image: 'https://images.unsplash.com/photo-1667372393119-3d4c48d07fc9?w=400&h=300&fit=crop'
+    },
+    {
+      title: 'Real-time Data Pipeline',
+      description: 'I architected a streaming data pipeline processing 100M+ events per hour with sub-second latency',
+      tech: ['Kafka', 'Spark', 'Cassandra', 'Python'],
+      metrics: '100M+ events/hour',
+      image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400&h=300&fit=crop'
+    },
+    {
+      title: 'Zero-Trust Security Framework',
+      description: 'I implemented enterprise-wide zero-trust architecture reducing security incidents by 85%',
+      tech: ['OAuth2', 'mTLS', 'SIEM', 'WAF'],
+      metrics: '85% incident reduction',
+      image: 'https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=400&h=300&fit=crop'
+    }
+  ];
+
+  const blogPosts = [
+    {
+      title: 'Implementing Zero-Downtime Deployments in Kubernetes',
+      excerpt: 'I share my comprehensive guide to rolling updates, blue-green deployments, and canary releases in production Kubernetes clusters.',
+      date: '2024-03-15',
+      readTime: '12 min read',
+      category: 'DevOps',
+      tags: ['Kubernetes', 'CI/CD', 'High Availability']
+    },
+    {
+      title: 'Building Secure APIs: Beyond OWASP Top 10',
+      excerpt: 'I explore advanced security patterns for API development including rate limiting, API gateways, and threat modeling.',
+      date: '2024-02-28',
+      readTime: '15 min read',
+      category: 'Security',
+      tags: ['API Security', 'OWASP', 'Authentication']
+    },
+    {
+      title: 'Optimizing Database Performance at Scale',
+      excerpt: 'I share my techniques for query optimization, indexing strategies, and database sharding for high-traffic applications.',
+      date: '2024-01-20',
+      readTime: '18 min read',
+      category: 'Database',
+      tags: ['PostgreSQL', 'Performance', 'Scaling']
+    }
+  ];
 
   return (
     <div className={`min-h-screen ${darkMode ? 'dark' : ''}`}>
@@ -411,7 +462,7 @@ const PersonalWebsite = () => {
               <div className={`${visibleSections.has('about') ? 'animate-slide-in-right' : 'opacity-0'}`}>
                 <h3 className="text-2xl font-semibold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">IT Excellence at Scale</h3>
                 <p className="text-gray-600 dark:text-gray-400 mb-6">
-                  With extensive experience in enterprise IT, I&#39;ve architected and implemented solutions that power 
+                  With extensive experience in enterprise IT, I've architected and implemented solutions that power 
                   mission-critical systems for leading organizations. My approach combines deep technical expertise 
                   with strategic business thinking.
                 </p>
@@ -598,10 +649,10 @@ const PersonalWebsite = () => {
             </div>
             <div className="grid md:grid-cols-2 gap-6">
               <div className={`${visibleSections.has('contact') ? 'animate-slide-in-left' : 'opacity-0'}`}>
-                <h3 className="text-2xl font-semibold mb-6 bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">Let&#39;s Connect</h3>
+                <h3 className="text-2xl font-semibold mb-6 bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">Let's Connect</h3>
                 <p className="text-gray-600 dark:text-gray-400 mb-8">
-                  Whether you&#39;re looking to modernize your IT infrastructure, implement 
-                  zero-trust security, or automate your IT operations, I&#39;m here to help 
+                  Whether you're looking to modernize your IT infrastructure, implement 
+                  zero-trust security, or automate your IT operations, I'm here to help 
                   transform your technical challenges into competitive advantages.
                 </p>
                 <div className="mt-8 flex flex-col gap-4">
