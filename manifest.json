@@ -3,20 +3,15 @@
   "name": "Greg Reznik - IT Automation & Consulting",
   "icons": [
     {
-      "src": "/favicon.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "/favicon.png",
-      "sizes": "512x512",
+      "src": "/personal-website/favicon.png",
+      "sizes": "32x32",
       "type": "image/png"
     }
   ],
-  "start_url": "/",
+  "start_url": "/personal-website/",
   "background_color": "#111827",
   "display": "standalone",
-  "scope": "/",
+  "scope": "/personal-website/",
   "theme_color": "#2563eb",
   "description": "Senior IT Systems Engineer & Automation Consultant. Specializing in IT automation, workflow design, and enterprise SaaS integration."
 } 
