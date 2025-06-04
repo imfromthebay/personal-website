@@ -1,27 +1,65 @@
 import { useState, useEffect } from 'react';
-import { ChevronDown, Download, Mail, Github, Linkedin, Menu, X, Calendar, ArrowRight, Shield, Code, Server, Database, Moon, Sun, Terminal, GitBranch, Lock, Zap, Phone } from 'lucide-react';
+import { ChevronDown, Download, Mail, Github, Linkedin, Menu, X, Calendar, ArrowRight, Shield, Code, Server, Database, Moon, Sun, GitBranch, Lock, Zap, Phone, Brain } from 'lucide-react';
 import SectionTitle from './components/SectionTitle';
-import Card from './components/Card';
 import Button from './components/Button';
 
+// Constants for better maintainability
+const NAVIGATION_HEIGHT = 64;
+const SCROLL_THRESHOLD = 50;
+const BACK_TO_TOP_THRESHOLD = 300;
+const INTERSECTION_THRESHOLD = 0.1;
+const STAGGER_DELAY_MS = 100;
+const PARALLAX_FACTOR = 0.5;
+
+// Type definitions for data structures
+interface NavigationItem {
+  name: string;
+  href: string;
+}
+
+interface Service {
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+  tech: string[];
+}
+
+interface Skill {
+  name: string;
+  level: number;
+}
+
+interface FormData {
+  name: string;
+  email: string;
+  message: string;
+}
+
+/**
+ * Main component for the personal website featuring responsive design,
+ * dark mode support, smooth animations, and accessibility features.
+ */
 const PersonalWebsite = () => {
-  const [, setActiveSection] = useState('home');
+  // State management
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [scrollY, setScrollY] = useState(0);
-  const [visibleSections, setVisibleSections] = useState(new Set());
+  const [visibleSections, setVisibleSections] = useState(new Set<string>());
   const [showBackToTop, setShowBackToTop] = useState(false);
-  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
+  const [formData, setFormData] = useState<FormData>({ name: '', email: '', message: '' });
 
-  // Smooth scroll to section
+  /**
+   * Smoothly scrolls to a specific section with proper offset for fixed navigation
+   * @param e - The mouse event from the clicked element
+   * @param sectionId - The target section ID (e.g., '#about')
+   */
   const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>, sectionId: string) => {
     e.preventDefault();
     const element = document.querySelector(sectionId);
     if (element) {
-      const navHeight = 64; // Height of the fixed navigation
       const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - navHeight;
+      const offsetPosition = elementPosition + window.pageYOffset - NAVIGATION_HEIGHT;
 
       window.scrollTo({
         top: offsetPosition,
@@ -30,12 +68,14 @@ const PersonalWebsite = () => {
     }
   };
 
-  // Initialize dark mode and styles
+  /**
+   * Initialize dark mode preference and inject custom CSS animations
+   */
   useEffect(() => {
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     setDarkMode(prefersDark);
 
-    // Inject animation styles
+    // Inject custom animation styles
     const styleSheet = document.createElement('style');
     styleSheet.type = 'text/css';
     styleSheet.innerText = `
@@ -70,7 +110,6 @@ const PersonalWebsite = () => {
           linear-gradient(to bottom, rgba(59, 130, 246, 0.1) 1px, transparent 1px);
         background-size: 20px 20px;
       }
-      /* Smooth scrolling for all browsers */
       html {
         scroll-behavior: smooth;
       }
@@ -84,23 +123,33 @@ const PersonalWebsite = () => {
       }
     `;
     document.head.appendChild(styleSheet);
+    
+    // Cleanup function to remove injected styles
     return () => {
-      document.head.removeChild(styleSheet);
+      if (document.head.contains(styleSheet)) {
+        document.head.removeChild(styleSheet);
+      }
     };
   }, []);
 
-  // Handle scroll effects
+  /**
+   * Handle scroll events for navigation styling and back-to-top button
+   */
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-      setScrollY(window.scrollY);
-      setShowBackToTop(window.scrollY > 300);
+      const currentScrollY = window.scrollY;
+      setScrolled(currentScrollY > SCROLL_THRESHOLD);
+      setScrollY(currentScrollY);
+      setShowBackToTop(currentScrollY > BACK_TO_TOP_THRESHOLD);
     };
+
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Intersection observer for animations
+  /**
+   * Set up intersection observer for scroll-triggered animations
+   */
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -110,7 +159,7 @@ const PersonalWebsite = () => {
           }
         });
       },
-      { threshold: 0.1 }
+      { threshold: INTERSECTION_THRESHOLD }
     );
 
     const sections = document.querySelectorAll('section[id]');
@@ -121,29 +170,37 @@ const PersonalWebsite = () => {
     };
   }, []);
 
-  // Toggle dark mode
+  /**
+   * Toggle between light and dark mode
+   */
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
   };
 
-  // Apply dark mode class to root
+  /**
+   * Apply dark mode styles to document root and body
+   */
   useEffect(() => {
+    const documentElement = document.documentElement;
+    const body = document.body;
+    const transitionStyle = 'background-color 0.5s, color 0.5s';
+
     if (darkMode) {
-      document.documentElement.classList.add('dark');
-      document.documentElement.style.backgroundColor = '#111827'; // gray-900
-      document.body.style.backgroundColor = '#111827'; // gray-900
-      document.documentElement.style.transition = 'background-color 0.5s, color 0.5s';
-      document.body.style.transition = 'background-color 0.5s, color 0.5s';
+      documentElement.classList.add('dark');
+      documentElement.style.backgroundColor = '#111827';
+      body.style.backgroundColor = '#111827';
     } else {
-      document.documentElement.classList.remove('dark');
-      document.documentElement.style.backgroundColor = '#ffffff';
-      document.body.style.backgroundColor = '#ffffff';
-      document.documentElement.style.transition = 'background-color 0.5s, color 0.5s';
-      document.body.style.transition = 'background-color 0.5s, color 0.5s';
+      documentElement.classList.remove('dark');
+      documentElement.style.backgroundColor = '#f3f4f6';
+      body.style.backgroundColor = '#f3f4f6';
     }
+    
+    documentElement.style.transition = transitionStyle;
+    body.style.transition = transitionStyle;
   }, [darkMode]);
 
-  const navigation = [
+  // Navigation menu items
+  const navigation: NavigationItem[] = [
     { name: 'Home', href: '#home' },
     { name: 'About', href: '#about' },
     { name: 'Resume', href: '#resume' },
@@ -151,28 +208,36 @@ const PersonalWebsite = () => {
     { name: 'Contact', href: '#contact' }
   ];
 
-  const services = [
+  // Services offered data
+  const services: Service[] = [
     {
-      title: 'IT Service Desk Deployment & Automation',
-      description: 'I architect and deploy modern IT service desks from scratch, leveraging modern platforms to deliver automated, scalable, and user-friendly support experiences. I automate ticketing, approvals, and employee lifecycle processes for rapid, secure, and efficient IT operations.',
+      title: 'AI Opportunity Assessment & Implementation',
+      description: 'I work with businesses to identify where AI can make a real impact—whether that\'s streamlining operations, improving customer experience, or unlocking new insights. I focus on making AI adoption secure, practical, and aligned with your goals, so it delivers real value without adding unnecessary complexity.',
+      icon: <Brain className="w-8 h-8" />,
+      tech: ['ChatGPT', 'Claude', 'Gemini', 'AI']
+    },
+    {
+      title: 'IT Service Desk Deployment',
+      description: 'I design and implement modern IT service desks from the ground up. By leveraging contemporary platforms, I deliver automated, scalable, and user-friendly support. I streamline ticketing, approvals, and employee lifecycle processes for secure and efficient operations.',
       icon: <Zap className="w-8 h-8" />,
       tech: ['Jira', 'Slack', 'Linear', 'ClickUp', 'Asana', 'Notion']
     },
     {
-      title: 'Flowgramming & Integration',
-      description: 'I am an expert in designing and implementing complex workflow automations and no-code automation solutions using modern platforms. I specialize in connecting enterprise systems through API integrations, seamless automation between tools, and scalable workflow design.',
-      icon: <GitBranch className="w-8 h-8" />,
-      tech: ['API Integration', 'Workflow Design', 'Zapier', 'Okta Workflows']
-    },
-    {
       title: 'Enterprise SaaS Management',
-      description: 'I implement and manage 100+ SaaS integrations (Okta, Slack, Jira, Confluence, etc.). I automate the  user onboarding/offboarding, access reviews, and RBAC. I streamline SaaS procurement, SSO, and security policy enforcement for efficient, secure operations.',
+      description: 'I implement and oversee 100+ SaaS integrations (Okta, Slack, Jira, Confluence, etc.). I automate user lifecycle management (onboarding/offboarding), access reviews, and RBAC. I streamline SaaS procurement, SSO, and security policy enforcement for secure and efficient operations.',
       icon: <Server className="w-8 h-8" />,
       tech: ['Okta', 'Slack', 'Jira', 'Confluence']
+    },
+    {
+      title: 'Flowgramming & Integration',
+      description: 'As an expert in complex workflow and no-code automation, I design and implement robust solutions. I connect enterprise systems through API integrations and create scalable workflow designs.',
+      icon: <GitBranch className="w-8 h-8" />,
+      tech: ['API Integration', 'Workflow Design', 'Zapier', 'Okta Workflows']
     }
   ];
 
-  const skills = [
+  // Technical skills with proficiency levels
+  const skills: Skill[] = [
     { name: 'Enterprise SaaS', level: 88 },
     { name: 'Enterprise Security', level: 91 },
     { name: 'Flowgramming', level: 90 },
@@ -181,85 +246,47 @@ const PersonalWebsite = () => {
     { name: 'Workflow Automation', level: 95 }
   ];
 
-  const certifications = [
-    'MDM Deployment',
-    'IDP Architecture/Implementation',
+  // Professional certifications and specializations
+  const certifications: string[] = [
+    'MDM and IDP Implementation',
+    'AI Opportunity Assessment',
     'Enterprise Security Hardening',
     'IT Leadership & Mentoring'
   ];
 
+  /**
+   * Handle form input changes for the contact form
+   * @param e - The change event from form inputs
+   */
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Parallax effect for hero section
+  /**
+   * Calculate parallax effect for hero section background
+   */
   const heroParallax = {
-    transform: `translateY(${scrollY * 0.5}px)`
+    transform: `translateY(${scrollY * PARALLAX_FACTOR}px)`
   };
 
-  // Staggered animation helper
+  /**
+   * Generate staggered animation delay for list items
+   * @param index - The index of the item in the list
+   * @returns CSS style object with animation delay
+   */
   const getStaggerDelay = (index: number) => ({
-    animationDelay: `${index * 100}ms`
+    animationDelay: `${index * STAGGER_DELAY_MS}ms`
   });
 
-  // Scroll to top function
+  /**
+   * Scroll to the top of the page smoothly
+   */
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
       behavior: 'smooth'
     });
   };
-
-  const portfolio = [
-    {
-      title: 'Enterprise Kubernetes Platform',
-      description: 'I built a multi-tenant Kubernetes platform handling 10K+ deployments daily with 99.99% uptime',
-      tech: ['Kubernetes', 'Istio', 'Prometheus', 'GitOps'],
-      metrics: '10K+ deployments/day',
-      image: 'https://images.unsplash.com/photo-1667372393119-3d4c48d07fc9?w=400&h=300&fit=crop'
-    },
-    {
-      title: 'Real-time Data Pipeline',
-      description: 'I architected a streaming data pipeline processing 100M+ events per hour with sub-second latency',
-      tech: ['Kafka', 'Spark', 'Cassandra', 'Python'],
-      metrics: '100M+ events/hour',
-      image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400&h=300&fit=crop'
-    },
-    {
-      title: 'Zero-Trust Security Framework',
-      description: 'I implemented enterprise-wide zero-trust architecture reducing security incidents by 85%',
-      tech: ['OAuth2', 'mTLS', 'SIEM', 'WAF'],
-      metrics: '85% incident reduction',
-      image: 'https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=400&h=300&fit=crop'
-    }
-  ];
-
-  const blogPosts = [
-    {
-      title: 'Implementing Zero-Downtime Deployments in Kubernetes',
-      excerpt: 'I share my comprehensive guide to rolling updates, blue-green deployments, and canary releases in production Kubernetes clusters.',
-      date: '2024-03-15',
-      readTime: '12 min read',
-      category: 'DevOps',
-      tags: ['Kubernetes', 'CI/CD', 'High Availability']
-    },
-    {
-      title: 'Building Secure APIs: Beyond OWASP Top 10',
-      excerpt: 'I explore advanced security patterns for API development including rate limiting, API gateways, and threat modeling.',
-      date: '2024-02-28',
-      readTime: '15 min read',
-      category: 'Security',
-      tags: ['API Security', 'OWASP', 'Authentication']
-    },
-    {
-      title: 'Optimizing Database Performance at Scale',
-      excerpt: 'I share my techniques for query optimization, indexing strategies, and database sharding for high-traffic applications.',
-      date: '2024-01-20',
-      readTime: '18 min read',
-      category: 'Database',
-      tags: ['PostgreSQL', 'Performance', 'Scaling']
-    }
-  ];
 
   return (
     <div className={`min-h-screen ${darkMode ? 'dark' : ''}`}>
@@ -277,7 +304,7 @@ const PersonalWebsite = () => {
                   onClick={scrollToTop}
                   aria-label="Scroll to top"
                   tabIndex={0}
-                  className="focus:outline-none focus:ring-2 focus:ring-blue-500 rounded bg-transparent border-none p-0 m-0"
+                  className="focus:outline-none rounded bg-transparent border-none p-0 m-0"
                   style={{ cursor: 'pointer' }}
                 >
                   <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
@@ -295,7 +322,6 @@ const PersonalWebsite = () => {
                     className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 font-medium"
                     onClick={(e) => {
                       scrollToSection(e, item.href);
-                      setActiveSection(item.name.toLowerCase());
                     }}
                   >
                     {item.name}
@@ -331,7 +357,7 @@ const PersonalWebsite = () => {
 
           {/* Mobile Navigation */}
           {mobileMenuOpen && (
-            <div className="md:hidden bg-white dark:bg-gray-900 border-t dark:border-gray-800">
+            <div className="md:hidden bg-gray-100 dark:bg-gray-900 border-t dark:border-gray-800">
               <div className="px-2 pt-2 pb-3 space-y-1">
                 {navigation.map((item) => (
                   <a
@@ -340,7 +366,6 @@ const PersonalWebsite = () => {
                     className="block px-3 py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
                     onClick={(e) => {
                       scrollToSection(e, item.href);
-                      setActiveSection(item.name.toLowerCase());
                       setMobileMenuOpen(false);
                     }}
                   >
@@ -355,7 +380,7 @@ const PersonalWebsite = () => {
         {/* Hero Section */}
         <section id="home" className="min-h-screen flex items-center justify-center relative overflow-hidden">
           <div 
-            className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900"
+            className="absolute inset-0 bg-gradient-to-br from-blue-50 via-gray-100 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900"
             style={heroParallax}
           ></div>
           <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
@@ -371,14 +396,8 @@ const PersonalWebsite = () => {
             <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 mb-3 font-medium">
               I help fast-growing companies automate, secure, and scale their IT operations.
             </p>
-            <div className="flex flex-wrap justify-center items-center gap-4 mb-8">
-              <img src="/logos/opensea.svg" alt="OpenSea" className="h-8 w-auto opacity-80 grayscale hover:grayscale-0 transition-all" onError={(e) => e.currentTarget.style.display='none'} />
-              <img src="/logos/scribd.svg" alt="Scribd" className="h-8 w-auto opacity-80 grayscale hover:grayscale-0 transition-all" onError={(e) => e.currentTarget.style.display='none'} />
-              <img src="/logos/atlassian.svg" alt="Atlassian" className="h-8 w-auto opacity-80 grayscale hover:grayscale-0 transition-all" onError={(e) => e.currentTarget.style.display='none'} />
-              {/* Add more logos as needed */}
-            </div>
             <p className="text-lg text-gray-600 dark:text-gray-400 mb-12 max-w-2xl mx-auto">
-              I build powerful no-code automation solutions, seamless MDM and IDP integrations, and enterprise system connectivity. I specialize in workflow design and API integration through modern automation platforms.
+              I deliver no-code automation, seamless MDM/IDP integration, and enterprise system connectivity. I specialize in workflow design, API integration, and helping businesses securely scale AI across their operations for greater efficiency and insight.
             </p>
             <div className="flex flex-wrap gap-4 justify-center">
               <a
@@ -402,7 +421,7 @@ const PersonalWebsite = () => {
                 View Experience
               </a>
             </div>
-            <div className="mt-12 flex justify-center gap-8 text-sm text-gray-600 dark:text-gray-400">
+            <div className="mt-12 flex flex-wrap justify-center gap-4 sm:gap-8 text-sm text-gray-600 dark:text-gray-400 mx-auto">
               <div className="flex items-center gap-2">
                 <Zap className="w-4 h-4 text-green-500" />
                 <span>Bleeding Edge</span>
@@ -417,20 +436,22 @@ const PersonalWebsite = () => {
               </div>
             </div>
           </main>
-          <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
-            <a 
-              href="#about" 
-              onClick={(e) => scrollToSection(e, '#about')}
-              className="block cursor-pointer"
-              aria-label="Scroll to About section"
-            >
-              <ChevronDown size={32} className="text-gray-400 dark:text-gray-600" />
-            </a>
+          <div className="absolute bottom-0 left-0 right-0 flex justify-center pb-8 sm:pb-10">
+            <div className="animate-bounce">
+              <a 
+                href="#about" 
+                onClick={(e) => scrollToSection(e, '#about')}
+                className="block cursor-pointer"
+                aria-label="Scroll to About section"
+              >
+                <ChevronDown size={32} className="text-gray-400 dark:text-gray-600" />
+              </a>
+            </div>
           </div>
         </section>
 
         {/* About Section */}
-        <section id="about" className="py-16 sm:py-20 bg-white dark:bg-gray-800 transition-colors duration-500" aria-labelledby="about-title">
+        <section id="about" className="py-16 sm:py-20 bg-gray-100 dark:bg-gray-800 transition-colors duration-500" aria-labelledby="about-title">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className={visibleSections.has('about') ? 'animate-fade-in' : 'opacity-0'}>
               <SectionTitle>Technical Expertise</SectionTitle>
@@ -449,7 +470,7 @@ const PersonalWebsite = () => {
                   {certifications.map((cert, index) => (
                     <div
                       key={cert}
-                      className="bg-white dark:bg-gray-900 p-4 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-800 flex items-center gap-2 min-h-[56px] break-words whitespace-normal min-w-0"
+                      className="bg-gray-50 dark:bg-gray-900 p-4 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-800 flex items-center gap-2 min-h-[56px] break-words whitespace-normal min-w-0"
                       style={getStaggerDelay(index)}
                       aria-label={cert}
                     >
@@ -460,16 +481,12 @@ const PersonalWebsite = () => {
                 </div>
               </div>
               <div className={`${visibleSections.has('about') ? 'animate-slide-in-right' : 'opacity-0'}`}>
-                <h3 className="text-2xl font-semibold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">IT Excellence at Scale</h3>
+                <h3 className="text-2xl font-semibold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">Modern IT Strategy & Implementation</h3>
                 <p className="text-gray-600 dark:text-gray-400 mb-6">
-                  With extensive experience in enterprise IT, I've architected and implemented solutions that power 
-                  mission-critical systems for leading organizations. My approach combines deep technical expertise 
-                  with strategic business thinking.
+                  With a strong track record in enterprise IT, I design and implement high-impact solutions that support mission-critical operations for top-tier organizations. I bring a unique blend of deep technical expertise and strategic business acumen to every engagement.
                 </p>
                 <p className="text-gray-600 dark:text-gray-400 mb-8">
-                  I specialize in transforming complex technical challenges into elegant, automated solutions that scale. 
-                  From implementing zero-trust security frameworks to building comprehensive device management systems, 
-                  I deliver results that exceed expectations.
+                  I turn complex challenges into scalable, automated systems that drive efficiency and resilience—from zero-trust security architectures to full-scale device management platforms. I also help businesses uncover and evaluate AI opportunities, ensuring secure, practical, and high-value adoption of artificial intelligence across their workflows.
                 </p>
                 <div className="space-y-4">
                   {skills.map((skill, index) => (
@@ -498,12 +515,12 @@ const PersonalWebsite = () => {
         </section>
 
         {/* Resume Section */}
-        <section id="resume" className="py-16 sm:py-20 bg-gray-50 dark:bg-gray-900 transition-colors duration-500" aria-labelledby="resume-title">
+        <section id="resume" className="py-16 sm:py-20 bg-white dark:bg-gray-900 transition-colors duration-500" aria-labelledby="resume-title">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className={visibleSections.has('resume') ? 'animate-fade-in' : 'opacity-0'}>
               <SectionTitle>Professional Experience</SectionTitle>
             </div>
-            <div className={`bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-800 p-8 md:p-12 transition-colors duration-500 space-y-10 ${
+            <div className={`bg-gray-100 dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-800 p-8 md:p-12 transition-colors duration-500 space-y-10 ${
               visibleSections.has('resume') ? 'animate-scale-in' : 'opacity-0'
             }`}>
               <div className="mb-8">
@@ -541,7 +558,7 @@ const PersonalWebsite = () => {
                   </div>
                   <div className="border-l-4 border-yellow-600 dark:border-yellow-400 pl-6">
                     <h4 className="text-xl font-semibold">IT Support Specialist</h4>
-                    <p className="text-gray-600 dark:text-gray-400 mb-2">SigFig • May 2017 - Dec 2018 • San Francisco Bay Area</p>
+                    <p className="text-gray-600 dark:text-gray-400 mb-2">SigFig • May 2017 - Dec 2018</p>
                     <ul className="list-disc list-inside text-gray-600 dark:text-gray-400 space-y-1">
                       <li>Resolved 43%+ of IT support requests without escalation</li>
                       <li>Led conference room upgrades and office buildouts</li>
@@ -551,7 +568,7 @@ const PersonalWebsite = () => {
                   </div>
                   <div className="border-l-4 border-pink-600 dark:border-pink-400 pl-6">
                     <h4 className="text-xl font-semibold">IT Intern</h4>
-                    <p className="text-gray-600 dark:text-gray-400 mb-2">Synack, Inc. • May 2016 - Oct 2016 • Redwood City, CA</p>
+                    <p className="text-gray-600 dark:text-gray-400 mb-2">Synack, Inc. • May 2016 - Oct 2016</p>
                     <ul className="list-disc list-inside text-gray-600 dark:text-gray-400 space-y-1">
                       <li>Provided IT support for devices, apps, and AV systems</li>
                       <li>Managed JAMF patching and device imaging</li>
@@ -562,10 +579,10 @@ const PersonalWebsite = () => {
               </div>
               <div className="flex justify-center">
                 <a
-                  href="/GregoryReznikResume-2025.pdf"
+                  href="/personal-website/GregoryReznikResume-2025.pdf"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300"
+                  className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg shadow-sm hover:shadow-lg transform hover:-translate-y-1 active:scale-95 transition-all duration-300"
                 >
                   <Download size={20} />
                   Download Full Resume (PDF)
@@ -581,22 +598,31 @@ const PersonalWebsite = () => {
             <div className={visibleSections.has('services') ? 'animate-fade-in' : 'opacity-0'}>
               <SectionTitle>Consulting Services</SectionTitle>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 items-stretch">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 items-stretch">
               {services.map((service, index) => (
                 <div
                   key={index}
-                  style={getStaggerDelay(index)}
-                  className={`h-full bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-md hover:shadow-xl focus-within:ring-2 focus-within:ring-blue-500 transition-all duration-300 flex flex-col justify-between ${visibleSections.has('services') ? 'animate-fade-in-up' : 'opacity-0'}`}
+                  style={{
+                    ...getStaggerDelay(index),
+                    transition: 'opacity 0.6s ease-out, transform 0.6s ease-out',
+                  }}
+                  className={`h-full bg-gray-50 dark:bg-gray-900 rounded-2xl p-8 shadow-sm hover:shadow-lg transform hover:-translate-y-1 flex flex-col justify-between ${
+                    visibleSections.has('services') 
+                      ? 'opacity-100 translate-x-0' 
+                      : `opacity-0 ${index < 2 ? '-translate-x-12' : 'translate-x-12'}`
+                  }`}
                   tabIndex={0}
                   aria-label={service.title}
                 >
-                  <div>
-                    <div className="mb-4 text-blue-600 dark:text-blue-400">{service.icon}</div>
-                    <h3 className="text-xl font-semibold mb-2">{service.title}</h3>
-                    <p className="text-base text-gray-600 dark:text-gray-400 mb-4">
-                      {service.description}
-                    </p>
-                    <div className="flex flex-wrap gap-2 mb-6 min-h-[48px] items-start">
+                  <div className="flex flex-col flex-grow">
+                    <div>
+                      <div className="mb-4 text-blue-600 dark:text-blue-400">{service.icon}</div>
+                      <h3 className="text-xl font-semibold mb-2">{service.title}</h3>
+                      <p className="text-base text-gray-600 dark:text-gray-400 mb-4">
+                        {service.description}
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap gap-2 mb-6 min-h-[48px] items-end mt-auto">
                       {service.tech.map((tech) => (
                         <span
                           key={tech}
@@ -625,7 +651,7 @@ const PersonalWebsite = () => {
               <Button
                 variant="gradient"
                 iconLeft={<Calendar size={20} />}
-                className="gap-2"
+                className="gap-2 shadow-sm hover:shadow-lg transform hover:-translate-y-1 active:scale-95 transition-all duration-300"
                 onClick={(e) => scrollToSection(e, '#contact')}
               >
                 Schedule Technical Consultation
@@ -635,7 +661,7 @@ const PersonalWebsite = () => {
         </section>
 
         {/* Contact Section */}
-        <section id="contact" className="py-8 sm:py-12 bg-gray-50 dark:bg-gray-900 transition-colors duration-500" aria-labelledby="contact-title">
+        <section id="contact" className="py-8 sm:py-12 bg-white dark:bg-gray-900 transition-colors duration-500" aria-labelledby="contact-title">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className={visibleSections.has('contact') ? 'animate-fade-in' : 'opacity-0'}>
               <SectionTitle>Get In Touch</SectionTitle>
@@ -644,9 +670,7 @@ const PersonalWebsite = () => {
               <div className={`${visibleSections.has('contact') ? 'animate-slide-in-left' : 'opacity-0'}`}>
                 <h3 className="text-2xl font-semibold mb-6 bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">Let's Connect</h3>
                 <p className="text-gray-600 dark:text-gray-400 mb-8">
-                  Whether you're looking to modernize your IT infrastructure, implement 
-                  zero-trust security, or automate your IT operations, I'm here to help 
-                  transform your technical challenges into competitive advantages.
+                  I help businesses modernize IT infrastructure, implement zero-trust security, and automate operations. I deliver solutions that are secure, efficient, and scalable. I also work closely with them to integrate AI in a way that enhances—not complicates—their workflows, turning technical challenges into competitive advantages.
                 </p>
                 <div className="mt-8 flex flex-col gap-4">
                   <div className="flex items-center gap-4">
@@ -688,7 +712,7 @@ const PersonalWebsite = () => {
                 </div>
               </div>
               <div className={`${visibleSections.has('contact') ? 'animate-slide-in-right' : 'opacity-0'}`}>
-                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-800 p-8 transition-colors duration-500">
+                <div className="bg-gray-100 dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-800 p-8 transition-colors duration-500">
                   <form aria-label="Contact form" autoComplete="on">
                     <div className="mb-6">
                       <label htmlFor="name" className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
@@ -761,7 +785,7 @@ const PersonalWebsite = () => {
         <footer className="bg-black text-gray-300 py-8 transition-colors duration-500" role="contentinfo">
           <div className="max-w-3xl mx-auto px-4 flex flex-col items-center">
             <p className="text-center text-base mb-6">
-              &copy; 2025 Greg Reznik. All rights reserved. &nbsp;|&nbsp; Built with React &amp; Tailwind CSS
+              &copy; 2025 Greg Reznik. All rights reserved. &nbsp;|&nbsp; Built 100% using AI tools.
             </p>
             <div className="flex justify-center gap-8">
               <a
@@ -796,9 +820,10 @@ const PersonalWebsite = () => {
         {/* Back to Top Button */}
         <button
           onClick={scrollToTop}
-          className={`fixed bottom-8 right-8 p-3 bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 text-white rounded-full shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 ${
-            showBackToTop ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'
+          className={`fixed bottom-8 right-8 p-3 bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 text-white rounded-full shadow-lg ${
+            showBackToTop ? 'opacity-100' : 'opacity-0 pointer-events-none'
           }`}
+          style={{ transition: 'opacity 0.3s ease-in-out' }}
           aria-label="Back to top"
         >
           <ChevronDown className="w-6 h-6 transform rotate-180" />
