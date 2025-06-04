@@ -46,6 +46,35 @@ const PersonalWebsite = () => {
   const [currentSkillIndex, setCurrentSkillIndex] = useState(0);
 
   /**
+   * Natural smooth scroll with gentle easing
+   */
+  const smoothScrollTo = (targetPosition: number, duration: number = 1000) => {
+    const startPosition = window.pageYOffset;
+    const distance = targetPosition - startPosition;
+    let startTime: number | null = null;
+
+    // Gentle ease-out curve that feels natural
+    const easeOutQuart = (t: number): number => {
+      return 1 - Math.pow(1 - t, 4);
+    };
+
+    const animation = (currentTime: number) => {
+      if (startTime === null) startTime = currentTime;
+      const timeElapsed = currentTime - startTime;
+      const progress = Math.min(timeElapsed / duration, 1);
+      
+      const easedProgress = easeOutQuart(progress);
+      window.scrollTo(0, startPosition + distance * easedProgress);
+      
+      if (progress < 1) {
+        requestAnimationFrame(animation);
+      }
+    };
+
+    requestAnimationFrame(animation);
+  };
+
+  /**
    * Smoothly scrolls to a specific section with proper offset for fixed navigation
    * @param e - The mouse event from the clicked element
    * @param sectionId - The target section ID (e.g., '#about')
@@ -56,11 +85,7 @@ const PersonalWebsite = () => {
     if (element) {
       const elementPosition = element.getBoundingClientRect().top;
       const offsetPosition = elementPosition + window.pageYOffset - NAVIGATION_HEIGHT;
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      });
+      smoothScrollTo(offsetPosition);
     }
   };
 
@@ -116,7 +141,7 @@ const PersonalWebsite = () => {
         background-size: 20px 20px;
       }
       html {
-        scroll-behavior: smooth;
+        scroll-behavior: auto;
       }
       @media (prefers-reduced-motion: reduce) {
         *, *::before, *::after {
@@ -304,24 +329,21 @@ const PersonalWebsite = () => {
    * Scroll to the top of the page smoothly
    */
   const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
+    smoothScrollTo(0); // Uses default 1000ms duration
   };
 
   return (
-    <div className={`min-h-screen ${darkMode ? 'dark' : ''}`}>
-      <div className="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 transition-colors duration-500">
+    <div className={`min-h-screen overflow-x-hidden ${darkMode ? 'dark' : ''}`}>
+      <div className="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 transition-colors duration-500 overflow-x-hidden">
         {/* Navigation */}
         <nav className={`fixed top-0 left-0 right-0 z-50 border-b border-gray-200 dark:border-gray-800 transition-all duration-500 transition-colors
           ${scrolled 
             ? 'bg-white dark:bg-gray-900 shadow-md' 
             : 'bg-white/70 dark:bg-gray-900/70 backdrop-blur-md'
           }`} role="navigation" aria-label="Main navigation">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center h-16">
-              <div className="flex items-center">
+          <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8">
+            <div className="flex justify-between items-center h-14 sm:h-16">
+              <div className="flex items-center flex-shrink-0">
                 <button
                   onClick={scrollToTop}
                   aria-label="Scroll to top"
@@ -329,19 +351,19 @@ const PersonalWebsite = () => {
                   className="focus:outline-none rounded bg-transparent border-none p-0 m-0"
                   style={{ cursor: 'pointer' }}
                 >
-                  <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+                  <span className="text-lg sm:text-xl lg:text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent whitespace-nowrap">
                     Greg Reznik
                   </span>
                 </button>
               </div>
               
               {/* Desktop Navigation */}
-              <div className="hidden md:flex items-center space-x-8">
+              <div className="hidden md:flex items-center space-x-4 lg:space-x-8 flex-shrink-0">
                 {navigation.map((item) => (
                   <a
                     key={item.name}
                     href={item.href}
-                    className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 font-medium"
+                    className="text-sm lg:text-base text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 font-medium whitespace-nowrap"
                     onClick={(e) => {
                       scrollToSection(e, item.href);
                     }}
@@ -351,27 +373,27 @@ const PersonalWebsite = () => {
                 ))}
                 <button
                   onClick={toggleDarkMode}
-                  className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                  className="p-1.5 lg:p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors flex-shrink-0"
                   aria-label="Toggle dark mode"
                 >
-                  {darkMode ? <Sun size={20} /> : <Moon size={20} />}
+                  {darkMode ? <Sun size={18} className="lg:w-5 lg:h-5" /> : <Moon size={18} className="lg:w-5 lg:h-5" />}
                 </button>
               </div>
 
               {/* Mobile menu button */}
-              <div className="md:hidden flex items-center gap-4">
+              <div className="md:hidden flex items-center gap-2 sm:gap-3 flex-shrink-0">
                 <button
                   onClick={toggleDarkMode}
-                  className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800"
+                  className="p-1.5 sm:p-2 rounded-lg bg-gray-100 dark:bg-gray-800"
                   aria-label="Toggle dark mode"
                 >
-                  {darkMode ? <Sun size={20} /> : <Moon size={20} />}
+                  {darkMode ? <Sun size={16} className="sm:w-5 sm:h-5" /> : <Moon size={16} className="sm:w-5 sm:h-5" />}
                 </button>
                 <button
                   onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                   className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                 >
-                  {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                  {mobileMenuOpen ? <X size={20} className="sm:w-6 sm:h-6" /> : <Menu size={20} className="sm:w-6 sm:h-6" />}
                 </button>
               </div>
             </div>
@@ -380,12 +402,12 @@ const PersonalWebsite = () => {
           {/* Mobile Navigation */}
           {mobileMenuOpen && (
             <div className="md:hidden bg-gray-100 dark:bg-gray-900 border-t dark:border-gray-800">
-              <div className="px-2 pt-2 pb-3 space-y-1">
+              <div className="px-3 sm:px-4 pt-2 pb-3 space-y-1">
                 {navigation.map((item) => (
                   <a
                     key={item.name}
                     href={item.href}
-                    className="block px-3 py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
+                    className="block px-3 py-2.5 text-sm sm:text-base text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg"
                     onClick={(e) => {
                       scrollToSection(e, item.href);
                       setMobileMenuOpen(false);
@@ -400,65 +422,65 @@ const PersonalWebsite = () => {
         </nav>
 
         {/* Hero Section */}
-        <section id="home" className="min-h-screen flex items-center justify-center relative overflow-hidden">
+        <section id="home" className="min-h-screen mobile-landscape:min-h-[100svh] flex items-center justify-center relative overflow-hidden">
           <div 
             className="absolute inset-0 bg-gradient-to-br from-blue-50 via-gray-100 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900"
             style={heroParallax}
           ></div>
           <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
-          <main id="main-content" tabIndex={-1} className={`relative z-10 text-center px-4 max-w-4xl mx-auto ${visibleSections.has('home') ? 'animate-fade-in' : 'opacity-0'}`}>
-            <div className="mb-6 flex justify-center">
-              <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-2xl">
-                <Code className="w-12 h-12 text-blue-600 dark:text-blue-400" />
+          <main id="main-content" tabIndex={-1} className={`relative z-10 text-center px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto w-full ${visibleSections.has('home') ? 'animate-fade-in' : 'opacity-0'}`}>
+            <div className="mb-6 sm:mb-8 lg:mb-10 mobile-landscape:mb-2 flex justify-center">
+              <div className="p-2 sm:p-3 mobile-landscape:p-1.5 bg-blue-100 dark:bg-blue-900/30 rounded-2xl">
+                <Code className="w-8 h-8 sm:w-12 sm:h-12 mobile-landscape:w-5 mobile-landscape:h-5 text-blue-600 dark:text-blue-400" />
               </div>
             </div>
-            <h1 className="text-4xl md:text-6xl font-extrabold mb-4 leading-tight bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+            <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl mobile-landscape:text-2xl font-extrabold mb-6 lg:mb-8 mobile-landscape:mb-1 leading-tight bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent px-2 sm:whitespace-nowrap">
                Modern IT, Automated.
             </h1>
-            <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 mb-3 font-medium">
+            <p className="text-base md:text-lg lg:text-xl mobile-landscape:text-sm text-gray-700 dark:text-gray-300 mb-4 lg:mb-6 mobile-landscape:mb-1 font-medium px-2">
               I help fast-growing companies automate, secure, and scale their IT operations.
             </p>
-            <p className="text-lg text-gray-600 dark:text-gray-400 mb-12 max-w-2xl mx-auto">
+            <p className="text-base md:text-lg mobile-landscape:text-xs text-gray-600 dark:text-gray-400 mb-12 lg:mb-16 mobile-landscape:mb-4 max-w-3xl mx-auto px-2 leading-relaxed">
               I deliver no-code automation, seamless MDM/IDP integration, and enterprise system connectivity. I specialize in workflow design, API integration, and helping businesses securely scale AI across their operations for greater efficiency and insight.
             </p>
-            <div className="flex flex-wrap gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row mobile-landscape:flex-row gap-4 lg:gap-6 mobile-landscape:gap-2 justify-center items-center px-2">
               <a
                 href="#contact"
-                className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold shadow-sm hover:shadow-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transform hover:-translate-y-1 active:scale-95 transition-all duration-300 flex items-center gap-2"
+                className="px-8 mobile-landscape:px-4 py-3 mobile-landscape:py-1.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold shadow-sm hover:shadow-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transform hover:-translate-y-1 active:scale-95 transition-all duration-300 flex items-center justify-center gap-2 mobile-landscape:gap-1 mobile-landscape:text-xs"
                 onClick={(e) => scrollToSection(e, '#contact')}
                 tabIndex={0}
                 aria-label="Schedule Consultation"
               >
-                <Shield size={20} />
+                <Shield size={20} className="mobile-landscape:w-3 mobile-landscape:h-3" />
                 Schedule Consultation
               </a>
               <a
                 href="#resume"
-                className="px-8 py-3 border-2 border-gray-800 dark:border-gray-300 text-gray-800 dark:text-gray-300 rounded-lg font-semibold hover:bg-gray-800 dark:hover:bg-gray-300 hover:text-white dark:hover:text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all duration-300 flex items-center gap-2 active:scale-95"
+                className="px-8 mobile-landscape:px-4 py-3 mobile-landscape:py-1.5 border-2 border-gray-800 dark:border-gray-300 text-gray-800 dark:text-gray-300 rounded-lg font-semibold hover:bg-gray-800 dark:hover:bg-gray-300 hover:text-white dark:hover:text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all duration-300 flex items-center justify-center gap-2 mobile-landscape:gap-1 active:scale-95 mobile-landscape:text-xs"
                 onClick={(e) => scrollToSection(e, '#resume')}
                 tabIndex={0}
                 aria-label="View Experience"
               >
-                <GitBranch size={20} />
+                <GitBranch size={20} className="mobile-landscape:w-3 mobile-landscape:h-3" />
                 View Experience
               </a>
             </div>
-            <div className="mt-12 flex flex-wrap justify-center gap-4 sm:gap-8 text-sm text-gray-600 dark:text-gray-400 mx-auto">
-              <div className="flex items-center gap-2">
-                <Zap className="w-4 h-4 text-green-500" />
-                <span>Bleeding Edge</span>
+            <div className="mt-12 lg:mt-20 mobile-landscape:mt-3 flex flex-wrap justify-center gap-4 sm:gap-8 lg:gap-12 mobile-landscape:gap-2 text-sm mobile-landscape:text-xs text-gray-600 dark:text-gray-400 mx-auto px-2">
+              <div className="flex items-center gap-2 mobile-landscape:gap-1">
+                <Zap className="w-4 h-4 mobile-landscape:w-2.5 mobile-landscape:h-2.5 text-green-500 flex-shrink-0" />
+                <span className="whitespace-nowrap">Bleeding Edge</span>
               </div>
-              <div className="flex items-center gap-2">
-                <Lock className="w-4 h-4 text-blue-500" />
-                <span>Security First</span>
+              <div className="flex items-center gap-2 mobile-landscape:gap-1">
+                <Lock className="w-4 h-4 mobile-landscape:w-2.5 mobile-landscape:h-2.5 text-blue-500 flex-shrink-0" />
+                <span className="whitespace-nowrap">Security First</span>
               </div>
-              <div className="flex items-center gap-2">
-                <Database className="w-4 h-4 text-purple-500" />
-                <span>Scalable Solutions</span>
+              <div className="flex items-center gap-2 mobile-landscape:gap-1">
+                <Database className="w-4 h-4 mobile-landscape:w-2.5 mobile-landscape:h-2.5 text-purple-500 flex-shrink-0" />
+                <span className="whitespace-nowrap">Scalable Solutions</span>
               </div>
             </div>
           </main>
-          <div className="absolute bottom-0 left-0 right-0 flex justify-center pb-8 sm:pb-10">
+          <div className="absolute bottom-0 left-0 right-0 flex justify-center pb-8 sm:pb-10 mobile-landscape:pb-4">
             <div className="animate-bounce">
               <a 
                 href="#about" 
@@ -466,47 +488,49 @@ const PersonalWebsite = () => {
                 className="block cursor-pointer"
                 aria-label="Scroll to About section"
               >
-                <ChevronDown size={32} className="text-gray-400 dark:text-gray-600" />
+                <ChevronDown size={32} className="mobile-landscape:w-6 mobile-landscape:h-6 text-gray-400 dark:text-gray-600" />
               </a>
             </div>
           </div>
         </section>
 
         {/* About Section */}
-        <section id="about" className="py-16 sm:py-20 bg-gray-100 dark:bg-gray-800 transition-colors duration-500" aria-labelledby="about-title">
+        <section id="about" className="py-16 sm:py-20 mobile-landscape:py-6 bg-gray-100 dark:bg-gray-800 transition-colors duration-500" aria-labelledby="about-title">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className={visibleSections.has('about') ? 'animate-fade-in' : 'opacity-0'}>
               <SectionTitle>Technical Expertise</SectionTitle>
             </div>
-            <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div className="grid lg:grid-cols-2 gap-8 sm:gap-12 items-center">
               <div className={`${visibleSections.has('about') ? 'animate-slide-in-left' : 'opacity-0'}`}>
-                <div className="relative">
+                <div className="relative max-w-lg mx-auto lg:mx-0">
                   <img
                     src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&h=800&fit=crop&auto=format&q=80"
                     alt="Modern laptop with code on screen in a professional workspace"
-                    className="rounded-2xl shadow-xl object-cover aspect-square w-full h-80 max-w-lg mx-auto"
+                    className="rounded-2xl shadow-xl object-cover aspect-square w-full h-64 sm:h-80"
                   />
-                  <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl -z-10"></div>
                 </div>
-                <div className="mt-8 grid grid-cols-2 gap-4">
-                  {certifications.map((cert, index) => (
-                    <div
-                      key={cert}
-                      className="bg-gray-50 dark:bg-gray-900 p-4 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-800 flex items-center gap-2 min-h-[56px] break-words whitespace-normal min-w-0"
-                      style={getStaggerDelay(index)}
-                      aria-label={cert}
-                    >
-                      <Shield className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300 break-words whitespace-normal min-w-0">{cert}</span>
-                    </div>
-                  ))}
+                <div className="mt-6 sm:mt-8 max-w-lg mx-auto lg:mx-0">
+                  {/* Certification Badges */}
+                  <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-2 sm:gap-4 justify-center lg:justify-start">
+                    {certifications.map((cert, index) => (
+                      <div
+                        key={cert}
+                        className="bg-gray-50 dark:bg-gray-900 p-2 sm:p-4 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-800 flex flex-col items-center gap-1 sm:gap-2 min-h-[60px] sm:min-h-[56px] text-center justify-center"
+                        style={getStaggerDelay(index)}
+                        aria-label={cert}
+                      >
+                        <Shield className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+                        <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 leading-tight">{cert}</span>
+                      </div>
+                    ))}
+                  </div>
                   
                   {/* Skills Rotating Carousel */}
-                  <div className={`col-span-2 ${visibleSections.has('about') ? 'animate-fade-in' : 'opacity-0'}`}>
-                    <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-800 min-h-[56px] flex items-center justify-center">
+                  <div className={`mt-4 sm:mt-6 ${visibleSections.has('about') ? 'animate-fade-in' : 'opacity-0'}`}>
+                    <div className="bg-gray-50 dark:bg-gray-900 p-3 sm:p-4 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-800 min-h-[48px] sm:min-h-[56px] flex items-center justify-center">
                       <div className="text-center w-full">
                         {/* Main rotating skill display */}
-                        <div className="relative h-6 flex items-center justify-center overflow-hidden">
+                        <div className="relative h-5 sm:h-6 flex items-center justify-center overflow-hidden">
                           {skills.map((skill, index) => (
                             <div
                               key={skill}
@@ -518,9 +542,9 @@ const PersonalWebsite = () => {
                                   : 'opacity-0 transform translate-y-8 scale-95'
                               }`}
                             >
-                              <div className="flex items-center justify-center gap-2">
-                                <span className="text-lg">{skill.split(' ')[0]}</span>
-                                <h3 className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent whitespace-nowrap">
+                              <div className="flex items-center justify-center gap-1.5 sm:gap-2 px-2">
+                                <span className="text-sm sm:text-lg flex-shrink-0">{skill.split(' ')[0]}</span>
+                                <h3 className="text-sm sm:text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent text-center min-w-0">
                                   {skill.split(' ').slice(1).join(' ')}
                                 </h3>
                               </div>
@@ -529,14 +553,14 @@ const PersonalWebsite = () => {
                         </div>
                         
                         {/* Progress indicators */}
-                        <div className="flex justify-center gap-1.5 mt-2">
+                        <div className="flex justify-center gap-1 sm:gap-1.5 mt-1.5 sm:mt-2">
                           {skills.map((_, index) => (
                             <button
                               key={index}
                               onClick={() => setCurrentSkillIndex(index)}
                               className={`w-1 h-1 rounded-full transition-all duration-300 touch-manipulation ${
                                 index === currentSkillIndex
-                                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 w-4'
+                                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 w-3 sm:w-4'
                                   : 'bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500'
                               }`}
                               aria-label={`Show ${skills[index]}`}
@@ -548,25 +572,27 @@ const PersonalWebsite = () => {
                   </div>
                 </div>
               </div>
-              <div className={`${visibleSections.has('about') ? 'animate-slide-in-right' : 'opacity-0'}`}>
-                <h3 className="text-2xl font-semibold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">Modern IT Strategy & Implementation</h3>
-                <p className="text-gray-600 dark:text-gray-400 mb-6">
+              <div className={`${visibleSections.has('about') ? 'animate-slide-in-right' : 'opacity-0'} mt-8 lg:mt-0`}>
+                <h3 className="text-xl sm:text-2xl font-semibold mb-3 sm:mb-4 bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent leading-tight">Modern IT Strategy & Implementation</h3>
+                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-4 sm:mb-6 leading-relaxed">
                   With a strong track record in enterprise IT, I design and implement high-impact solutions that support mission-critical operations for top-tier organizations. I bring a unique blend of deep technical expertise and strategic business acumen to every engagement.
                 </p>
-                <p className="text-gray-600 dark:text-gray-400 mb-8">
+                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-6 sm:mb-8 leading-relaxed">
                   I turn complex challenges into scalable, automated systems that drive efficiency and resilience—from zero-trust security architectures to full-scale device management platforms. I also help businesses uncover and evaluate AI opportunities, ensuring secure, practical, and high-value adoption of artificial intelligence across their workflows.
                 </p>
                 
                 {/* Call to Action Button */}
-                <a
-                  href="#contact"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold shadow-sm hover:shadow-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transform hover:-translate-y-1 active:scale-95 transition-all duration-300 mb-8"
-                  onClick={(e) => scrollToSection(e, '#contact')}
-                  aria-label="Schedule Technical Consultation"
-                >
-                  <Calendar size={20} />
-                  Schedule Technical Consultation
-                </a>
+                <div className="text-center lg:text-left">
+                  <a
+                    href="#contact"
+                    className="inline-flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold shadow-sm hover:shadow-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transform hover:-translate-y-1 active:scale-95 transition-all duration-300 mb-6 sm:mb-8 text-sm sm:text-base"
+                    onClick={(e) => scrollToSection(e, '#contact')}
+                    aria-label="Schedule Technical Consultation"
+                  >
+                    <Calendar size={18} className="sm:w-5 sm:h-5" />
+                    Schedule Technical Consultation
+                  </a>
+                </div>
               </div>
             </div>
           </div>
@@ -651,12 +677,12 @@ const PersonalWebsite = () => {
         </section>
 
         {/* Services Section */}
-        <section id="services" className="py-8 sm:py-12 bg-gray-100 dark:bg-gray-800 transition-colors duration-500" aria-labelledby="services-title">
+        <section id="services" className="py-8 sm:py-12 lg:py-16 bg-gray-100 dark:bg-gray-800 transition-colors duration-500" aria-labelledby="services-title">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className={visibleSections.has('services') ? 'animate-fade-in' : 'opacity-0'}>
               <SectionTitle>Consulting Services</SectionTitle>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 items-stretch">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 items-stretch">
               {services.map((service, index) => (
                 <div
                   key={index}
@@ -664,7 +690,7 @@ const PersonalWebsite = () => {
                     ...getStaggerDelay(index),
                     transition: 'opacity 0.6s ease-out, transform 0.6s ease-out',
                   }}
-                  className={`h-full bg-gray-50 dark:bg-gray-900 rounded-2xl p-8 shadow-sm hover:shadow-lg transform hover:-translate-y-1 flex flex-col justify-between ${
+                  className={`h-full bg-gray-50 dark:bg-gray-900 rounded-2xl p-4 sm:p-6 lg:p-8 shadow-sm hover:shadow-lg transform hover:-translate-y-1 flex flex-col justify-between ${
                     visibleSections.has('services') 
                       ? 'opacity-100 translate-x-0' 
                       : `opacity-0 ${index < 2 ? '-translate-x-12' : 'translate-x-12'}`
@@ -674,17 +700,17 @@ const PersonalWebsite = () => {
                 >
                   <div className="flex flex-col flex-grow">
                     <div>
-                      <div className="mb-4 text-blue-600 dark:text-blue-400">{service.icon}</div>
-                      <h3 className="text-xl font-semibold mb-2">{service.title}</h3>
-                      <p className="text-base text-gray-600 dark:text-gray-400 mb-4">
+                      <div className="mb-3 sm:mb-4 text-blue-600 dark:text-blue-400">{service.icon}</div>
+                      <h3 className="text-lg sm:text-xl font-semibold mb-2 leading-tight">{service.title}</h3>
+                      <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-3 sm:mb-4 leading-relaxed">
                         {service.description}
                       </p>
                     </div>
-                    <div className="flex flex-wrap gap-2 mb-6 min-h-[48px] items-end mt-auto">
+                    <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-4 sm:mb-6 min-h-[40px] sm:min-h-[48px] items-end mt-auto">
                       {service.tech.map((tech) => (
                         <span
                           key={tech}
-                          className="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full text-xs font-medium"
+                          className="px-2 sm:px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full text-xs font-medium whitespace-nowrap"
                         >
                           {tech}
                         </span>
@@ -693,23 +719,23 @@ const PersonalWebsite = () => {
                   </div>
                   <a
                     href="#contact"
-                    className="inline-flex items-center justify-center gap-2 px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold shadow-sm hover:shadow-lg focus:ring-2 focus:ring-blue-500 focus:outline-none active:scale-95 transition-all duration-300 mt-auto"
+                    className="inline-flex items-center justify-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold shadow-sm hover:shadow-lg focus:ring-2 focus:ring-blue-500 focus:outline-none active:scale-95 transition-all duration-300 mt-auto text-sm sm:text-base"
                     onClick={(e) => { e.preventDefault(); scrollToSection(e, '#contact'); }}
                     aria-label={`Learn more about ${service.title}`}
                   >
-                    Learn More <ArrowRight size={16} className="ml-2" />
+                    Learn More <ArrowRight size={14} className="sm:w-4 sm:h-4" />
                   </a>
                 </div>
               ))}
             </div>
-            <div className="mt-6 text-center">
-              <p className="text-gray-600 dark:text-gray-400 mb-6">
+            <div className="mt-6 sm:mt-8 text-center px-4">
+              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-4 sm:mb-6 leading-relaxed">
                 Need a custom solution? Let&#39;s discuss your technical challenges.
               </p>
               <Button
                 variant="gradient"
-                iconLeft={<Calendar size={20} />}
-                className="gap-2 shadow-sm hover:shadow-lg transform hover:-translate-y-1 active:scale-95 transition-all duration-300"
+                iconLeft={<Calendar size={18} className="sm:w-5 sm:h-5" />}
+                className="gap-1.5 sm:gap-2 shadow-sm hover:shadow-lg transform hover:-translate-y-1 active:scale-95 transition-all duration-300 text-sm sm:text-base"
                 onClick={(e) => scrollToSection(e, '#contact')}
               >
                 Schedule Technical Consultation
@@ -719,49 +745,49 @@ const PersonalWebsite = () => {
         </section>
 
         {/* Contact Section */}
-        <section id="contact" className="py-8 sm:py-12 bg-white dark:bg-gray-900 transition-colors duration-500" aria-labelledby="contact-title">
+        <section id="contact" className="py-8 sm:py-12 lg:py-16 bg-white dark:bg-gray-900 transition-colors duration-500" aria-labelledby="contact-title">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className={visibleSections.has('contact') ? 'animate-fade-in' : 'opacity-0'}>
               <SectionTitle>Get In Touch</SectionTitle>
             </div>
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12">
               <div className={`${visibleSections.has('contact') ? 'animate-slide-in-left' : 'opacity-0'}`}>
-                <h3 className="text-2xl font-semibold mb-6 bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">Let's Connect</h3>
-                <p className="text-gray-600 dark:text-gray-400 mb-8">
+                <h3 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6 bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent leading-tight">Let's Connect</h3>
+                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-6 sm:mb-8 leading-relaxed">
                   I help businesses modernize IT infrastructure, implement zero-trust security, and automate operations. I deliver solutions that are secure, efficient, and scalable. I also work closely with them to integrate AI in a way that enhances—not complicates—their workflows, turning technical challenges into competitive advantages.
                 </p>
-                <div className="mt-8 flex flex-col gap-4">
-                  <div className="flex items-center gap-4">
-                    <Mail className="text-blue-600 dark:text-blue-400" size={24} />
-                    <a href="mailto:gregreznik93@gmail.com" className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                <div className="mt-6 sm:mt-8 flex flex-col gap-3 sm:gap-4">
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <Mail className="text-blue-600 dark:text-blue-400 flex-shrink-0" size={20} />
+                    <a href="mailto:gregreznik93@gmail.com" className="text-sm sm:text-base text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors break-all">
                       gregreznik93@gmail.com
                     </a>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <Phone className="text-blue-600 dark:text-blue-400" size={24} />
-                    <span className="text-gray-700 dark:text-gray-300">
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <Phone className="text-blue-600 dark:text-blue-400 flex-shrink-0" size={20} />
+                    <span className="text-sm sm:text-base text-gray-700 dark:text-gray-300">
                       (415) 309-2272
                     </span>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <Linkedin className="text-blue-600 dark:text-blue-400" size={24} />
-                    <a href="https://www.linkedin.com/in/gregreznik93/" className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" target="_blank" rel="noopener noreferrer">
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <Linkedin className="text-blue-600 dark:text-blue-400 flex-shrink-0" size={20} />
+                    <a href="https://www.linkedin.com/in/gregreznik93/" className="text-sm sm:text-base text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors break-all" target="_blank" rel="noopener noreferrer">
                       linkedin.com/in/gregreznik93
                     </a>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <Github className="text-blue-600 dark:text-blue-400" size={24} />
-                    <a href="https://github.com/imfromthebay" className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" target="_blank" rel="noopener noreferrer">
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <Github className="text-blue-600 dark:text-blue-400 flex-shrink-0" size={20} />
+                    <a href="https://github.com/imfromthebay" className="text-sm sm:text-base text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors break-all" target="_blank" rel="noopener noreferrer">
                       github.com/imfromthebay
                     </a>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <Calendar className="text-blue-600 dark:text-blue-400" size={24} />
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <Calendar className="text-blue-600 dark:text-blue-400 flex-shrink-0" size={20} />
                     <a
                       href="https://calendar.app.google/bzcQZYGQtsoiTdua6"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                      className="text-sm sm:text-base text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                       aria-label="Book a meeting on my calendar"
                     >
                       Book a Meeting
@@ -769,11 +795,11 @@ const PersonalWebsite = () => {
                   </div>
                 </div>
               </div>
-              <div className={`${visibleSections.has('contact') ? 'animate-slide-in-right' : 'opacity-0'}`}>
-                <div className="bg-gray-100 dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-800 p-8 transition-colors duration-500">
+              <div className={`${visibleSections.has('contact') ? 'animate-slide-in-right' : 'opacity-0'} mt-8 lg:mt-0`}>
+                <div className="bg-gray-100 dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-800 p-4 sm:p-6 lg:p-8 transition-colors duration-500">
                   <form aria-label="Contact form" autoComplete="on">
-                    <div className="mb-6">
-                      <label htmlFor="name" className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
+                    <div className="mb-4 sm:mb-6">
+                      <label htmlFor="name" className="block text-sm sm:text-base text-gray-700 dark:text-gray-300 font-medium mb-2">
                         Name <span className="text-red-500">*</span>
                       </label>
                       <input
@@ -783,14 +809,14 @@ const PersonalWebsite = () => {
                         required
                         aria-required="true"
                         aria-label="Name"
-                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-400 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-all"
+                        className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-400 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-all text-sm sm:text-base"
                         value={formData.name}
                         onChange={handleFormChange}
                         placeholder="Your name"
                       />
                     </div>
-                    <div className="mb-6">
-                      <label htmlFor="email" className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
+                    <div className="mb-4 sm:mb-6">
+                      <label htmlFor="email" className="block text-sm sm:text-base text-gray-700 dark:text-gray-300 font-medium mb-2">
                         Email <span className="text-red-500">*</span>
                       </label>
                       <input
@@ -800,14 +826,14 @@ const PersonalWebsite = () => {
                         required
                         aria-required="true"
                         aria-label="Email"
-                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-400 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-all"
+                        className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-400 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-all text-sm sm:text-base"
                         value={formData.email}
                         onChange={handleFormChange}
                         placeholder="your@email.com"
                       />
                     </div>
-                    <div className="mb-6">
-                      <label htmlFor="message" className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
+                    <div className="mb-4 sm:mb-6">
+                      <label htmlFor="message" className="block text-sm sm:text-base text-gray-700 dark:text-gray-300 font-medium mb-2">
                         Message <span className="text-red-500">*</span>
                       </label>
                       <textarea
@@ -817,7 +843,7 @@ const PersonalWebsite = () => {
                         required
                         aria-required="true"
                         aria-label="Message"
-                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-400 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-all resize-none"
+                        className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-400 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-all resize-none text-sm sm:text-base"
                         value={formData.message}
                         onChange={handleFormChange}
                         placeholder="Tell me about your project..."
@@ -825,11 +851,11 @@ const PersonalWebsite = () => {
                     </div>
                     <button
                       type="submit"
-                      className="w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold shadow-sm hover:shadow-lg focus:ring-2 focus:ring-blue-500 focus:outline-none active:scale-95 transition-all duration-300"
+                      className="w-full px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold shadow-sm hover:shadow-lg focus:ring-2 focus:ring-blue-500 focus:outline-none active:scale-95 transition-all duration-300 text-sm sm:text-base"
                     >
                       Send Secure Message
                     </button>
-                    <p className="mt-4 text-xs text-gray-500 dark:text-gray-500 text-center">
+                    <p className="mt-3 sm:mt-4 text-xs text-gray-500 dark:text-gray-500 text-center leading-relaxed">
                       Your information is encrypted and will never be shared.
                     </p>
                   </form>
@@ -889,7 +915,12 @@ const PersonalWebsite = () => {
 
         {/* Global style for html, body background-color transition */}
         <style>{`
-          html, body { transition: background-color 0.5s, color 0.5s; }
+          html, body { 
+            transition: background-color 0.5s, color 0.5s; 
+            overflow-x: hidden;
+            max-width: 100vw;
+          }
+          * { max-width: 100%; }
         `}</style>
       </div>
     </div>

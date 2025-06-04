@@ -6,6 +6,15 @@ export default {
   ],
   darkMode: 'class',
   theme: {
+    screens: {
+      'xs': '475px',
+      'sm': '640px',
+      'md': '768px',
+      'lg': '1024px',
+      'xl': '1280px',
+      '2xl': '1536px',
+      'mobile-landscape': { 'raw': '(orientation: landscape) and (max-height: 500px)' },
+    },
     extend: {
       animation: {
         'fade-in': 'fade-in 0.8s ease-out',
