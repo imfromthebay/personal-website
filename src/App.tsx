@@ -24,11 +24,6 @@ interface Service {
   tech: string[];
 }
 
-interface Skill {
-  name: string;
-  level: number;
-}
-
 interface FormData {
   name: string;
   email: string;
@@ -48,6 +43,7 @@ const PersonalWebsite = () => {
   const [visibleSections, setVisibleSections] = useState(new Set<string>());
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [formData, setFormData] = useState<FormData>({ name: '', email: '', message: '' });
+  const [currentSkillIndex, setCurrentSkillIndex] = useState(0);
 
   /**
    * Smoothly scrolls to a specific section with proper offset for fixed navigation
@@ -211,6 +207,30 @@ const PersonalWebsite = () => {
     body.style.transition = transitionStyle;
   }, [darkMode]);
 
+  // Technical skills with professional expertise
+  const skills: string[] = [
+    '🏢 Enterprise SaaS',
+    '🔒 Enterprise Security', 
+    '⚡ Flowgramming',
+    '🔑 IDP Integration',
+    '📱 MDM Deployment',
+    '🤖 Workflow Automation',
+    '🧠 AI Integration'
+  ];
+
+  /**
+   * Auto-rotate through skills every 2.5 seconds
+   */
+  useEffect(() => {
+    if (visibleSections.has('about')) {
+      const interval = setInterval(() => {
+        setCurrentSkillIndex((prev) => (prev + 1) % skills.length);
+      }, 2500);
+      
+      return () => clearInterval(interval);
+    }
+  }, [visibleSections, skills.length]);
+
   // Navigation menu items
   const navigation: NavigationItem[] = [
     { name: 'Home', href: '#home' },
@@ -246,16 +266,6 @@ const PersonalWebsite = () => {
       icon: <GitBranch className="w-8 h-8" />,
       tech: ['API Integration', 'Workflow Design', 'Zapier', 'Okta Workflows']
     }
-  ];
-
-  // Technical skills with proficiency levels
-  const skills: Skill[] = [
-    { name: 'Enterprise SaaS', level: 88 },
-    { name: 'Enterprise Security', level: 91 },
-    { name: 'Flowgramming', level: 90 },
-    { name: 'IDP Integration', level: 92 },
-    { name: 'MDM Deployment', level: 94 },
-    { name: 'Workflow Automation', level: 95 }
   ];
 
   // Professional certifications and specializations
@@ -472,8 +482,8 @@ const PersonalWebsite = () => {
               <div className={`${visibleSections.has('about') ? 'animate-slide-in-left' : 'opacity-0'}`}>
                 <div className="relative">
                   <img
-                    src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=400&fit=crop"
-                    alt="Code on a terminal screen"
+                    src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&h=800&fit=crop&auto=format&q=80"
+                    alt="Modern laptop with code on screen in a professional workspace"
                     className="rounded-2xl shadow-xl object-cover aspect-square w-full h-80 max-w-lg mx-auto"
                   />
                   <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl -z-10"></div>
@@ -490,6 +500,52 @@ const PersonalWebsite = () => {
                       <span className="text-sm font-medium text-gray-700 dark:text-gray-300 break-words whitespace-normal min-w-0">{cert}</span>
                     </div>
                   ))}
+                  
+                  {/* Skills Rotating Carousel */}
+                  <div className={`col-span-2 ${visibleSections.has('about') ? 'animate-fade-in' : 'opacity-0'}`}>
+                    <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-800 min-h-[56px] flex items-center justify-center">
+                      <div className="text-center w-full">
+                        {/* Main rotating skill display */}
+                        <div className="relative h-6 flex items-center justify-center overflow-hidden">
+                          {skills.map((skill, index) => (
+                            <div
+                              key={skill}
+                              className={`absolute inset-0 flex items-center justify-center transition-all duration-700 ease-in-out ${
+                                index === currentSkillIndex 
+                                  ? 'opacity-100 transform translate-y-0 scale-100' 
+                                  : index === (currentSkillIndex - 1 + skills.length) % skills.length
+                                  ? 'opacity-0 transform -translate-y-8 scale-95'
+                                  : 'opacity-0 transform translate-y-8 scale-95'
+                              }`}
+                            >
+                              <div className="flex items-center justify-center gap-2">
+                                <span className="text-lg">{skill.split(' ')[0]}</span>
+                                <h3 className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent whitespace-nowrap">
+                                  {skill.split(' ').slice(1).join(' ')}
+                                </h3>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        
+                        {/* Progress indicators */}
+                        <div className="flex justify-center gap-1.5 mt-2">
+                          {skills.map((_, index) => (
+                            <button
+                              key={index}
+                              onClick={() => setCurrentSkillIndex(index)}
+                              className={`w-1 h-1 rounded-full transition-all duration-300 touch-manipulation ${
+                                index === currentSkillIndex
+                                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 w-4'
+                                  : 'bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500'
+                              }`}
+                              aria-label={`Show ${skills[index]}`}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
               <div className={`${visibleSections.has('about') ? 'animate-slide-in-right' : 'opacity-0'}`}>
@@ -500,27 +556,17 @@ const PersonalWebsite = () => {
                 <p className="text-gray-600 dark:text-gray-400 mb-8">
                   I turn complex challenges into scalable, automated systems that drive efficiency and resilience—from zero-trust security architectures to full-scale device management platforms. I also help businesses uncover and evaluate AI opportunities, ensuring secure, practical, and high-value adoption of artificial intelligence across their workflows.
                 </p>
-                <div className="space-y-4">
-                  {skills.map((skill, index) => (
-                    <div key={skill.name} style={getStaggerDelay(index)}>
-                      <div className="flex justify-between mb-1">
-                        <span className="text-gray-700 dark:text-gray-300 font-medium">{skill.name}</span>
-                        <span className="text-gray-600 dark:text-gray-400">{skill.level}%</span>
-                      </div>
-                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2" role="progressbar" aria-valuenow={skill.level} aria-valuemin={0} aria-valuemax={100} aria-label={skill.name}>
-                        <div
-                          className={`bg-gradient-to-r from-blue-600 to-purple-600 h-2 rounded-full transition-all duration-1000 ${
-                            visibleSections.has('about') ? '' : 'w-0'
-                          }`}
-                          style={{ 
-                            width: visibleSections.has('about') ? `${skill.level}%` : '0%',
-                            transitionDelay: `${index * 100}ms`
-                          }}
-                        ></div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                
+                {/* Call to Action Button */}
+                <a
+                  href="#contact"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold shadow-sm hover:shadow-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transform hover:-translate-y-1 active:scale-95 transition-all duration-300 mb-8"
+                  onClick={(e) => scrollToSection(e, '#contact')}
+                  aria-label="Schedule Technical Consultation"
+                >
+                  <Calendar size={20} />
+                  Schedule Technical Consultation
+                </a>
               </div>
             </div>
           </div>
