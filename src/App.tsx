@@ -69,11 +69,20 @@ const PersonalWebsite = () => {
   };
 
   /**
-   * Initialize dark mode preference and inject custom CSS animations
+   * Initialize dark mode preference from localStorage or system preference
    */
   useEffect(() => {
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    setDarkMode(prefersDark);
+    // Check if user has a saved preference in localStorage
+    const savedDarkMode = localStorage.getItem('darkMode');
+    
+    if (savedDarkMode !== null) {
+      // Use saved preference
+      setDarkMode(savedDarkMode === 'true');
+    } else {
+      // Fall back to system preference
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setDarkMode(prefersDark);
+    }
 
     // Inject custom animation styles
     const styleSheet = document.createElement('style');
@@ -171,10 +180,13 @@ const PersonalWebsite = () => {
   }, []);
 
   /**
-   * Toggle between light and dark mode
+   * Toggle between light and dark mode and save preference
    */
   const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
+    const newDarkMode = !darkMode;
+    setDarkMode(newDarkMode);
+    // Save preference to localStorage
+    localStorage.setItem('darkMode', newDarkMode.toString());
   };
 
   /**
