@@ -22,10 +22,33 @@
     <meta name="twitter:description" content="Senior IT Systems Engineer & Automation Consultant. Specializing in IT automation, workflow design, and enterprise SaaS integration." />
     <meta name="twitter:image" content="/og-image.png" />
     <title>Greg Reznik - IT Swiss Army Knife</title>
-    <script type="module" crossorigin src="/assets/index-CthqrDGZ.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-Dysm1wKT.css">
+    <script src="https://js.hcaptcha.com/1/api.js?onload=hCaptchaLoaded&render=explicit" async defer></script>
+    <script>
+      function hCaptchaLoaded() {
+        console.log('hCaptcha script loaded successfully');
+        // Find all h-captcha divs and render them explicitly
+        const captchaElements = document.querySelectorAll('.h-captcha');
+        captchaElements.forEach((element, index) => {
+          const sitekey = element.getAttribute('data-sitekey');
+          const size = element.getAttribute('data-size') || 'normal';
+          if (sitekey && window.hcaptcha) {
+            try {
+              window.hcaptcha.render(element, {
+                sitekey: sitekey,
+                size: size
+              });
+              console.log('hCaptcha widget rendered successfully');
+            } catch (error) {
+              console.error('Error rendering hCaptcha:', error);
+            }
+          }
+        });
+      }
+    </script>
+    <script type="module" crossorigin src="/assets/index-CuK3iqOQ.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-l85k_H9B.css">
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root"></div>
   </body>
 </html> 
