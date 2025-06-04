@@ -591,7 +591,7 @@ const PersonalWebsite = () => {
               </div>
               <div className="flex justify-center">
                 <a
-                  href="/personal-website/GregoryReznikResume-2025.pdf"
+                  href="/GregoryReznikResume-2025.pdf"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg shadow-sm hover:shadow-lg transform hover:-translate-y-1 active:scale-95 transition-all duration-300"

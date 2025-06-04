@@ -29,9 +29,9 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "serve": "vite preview --port 3000",
-    "predeploy": "npm run build",
+    "predeploy": "npm run build && echo whoisgregreznik.com > dist/CNAME",
     "deploy": "gh-pages -d dist"
   },
   "type": "module",
-  "homepage": "https://imfromthebay.github.io/personal-website"
+  "homepage": "https://whoisgregreznik.com"
 }
