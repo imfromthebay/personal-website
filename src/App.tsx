@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ChevronDown, Download, Mail, Github, Linkedin, Menu, X, Calendar, ArrowRight, Shield, Code, Server, Database, Moon, Sun, GitBranch, Lock, Zap, Phone, Brain } from 'lucide-react';
+import { ChevronDown, Download, Mail, Github, Linkedin, Menu, X, Calendar, ArrowRight, Shield, Code, Server, Database, Moon, Sun, GitBranch, Lock, Zap, Phone, Brain, CheckCircle, XCircle } from 'lucide-react';
 import SectionTitle from './components/SectionTitle';
 import Button from './components/Button';
 
@@ -43,7 +43,19 @@ const PersonalWebsite = () => {
   const [visibleSections, setVisibleSections] = useState(new Set<string>());
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [formData, setFormData] = useState<FormData>({ name: '', email: '', message: '' });
+  const [formStatus, setFormStatus] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [currentSkillIndex, setCurrentSkillIndex] = useState(0);
+
+  // Store form data at submission time to avoid timing issues with hCaptcha callback
+  const [submissionData, setSubmissionData] = useState<FormData | null>(null);
+
+  // Security: Track submission attempts for basic rate limiting
+  const [lastSubmissionTime, setLastSubmissionTime] = useState<number>(0);
+  const [submissionCount, setSubmissionCount] = useState<number>(0);
+
+  // Store hCaptcha widget ID for programmatic control
+  const [hCaptchaWidgetId, setHCaptchaWidgetId] = useState<string | null>(null);
 
   /**
    * Natural smooth scroll with gentle easing
@@ -232,6 +244,60 @@ const PersonalWebsite = () => {
     body.style.transition = transitionStyle;
   }, [darkMode]);
 
+  /**
+   * Initialize hCaptcha widget after component mounts and when theme changes
+   */
+  useEffect(() => {
+    const initializeHCaptcha = () => {
+      // Check if hCaptcha is loaded and if widget needs to be rendered
+      if (typeof window !== 'undefined' && (window as any).hcaptcha) {
+        const captchaElement = document.getElementById('hcaptcha-container');
+        if (captchaElement) {
+          // Reset the element by removing any existing content
+          captchaElement.innerHTML = '';
+          
+          const sitekey = captchaElement.getAttribute('data-sitekey');
+          const size = captchaElement.getAttribute('data-size') || 'invisible';
+          const theme = captchaElement.getAttribute('data-theme') || 'light';
+          
+          if (sitekey) {
+            try {
+              const widgetId = (window as any).hcaptcha.render(captchaElement, {
+                sitekey: sitekey,
+                size: size,
+                theme: theme,
+                callback: (token: string) => {
+                  // This will be called when hCaptcha is completed
+                  console.log('hCaptcha completed, submitting form...');
+                  console.log('Submission data in callback:', submissionData);
+                  console.log('Current form data in callback:', formData);
+                  submitFormWithToken(token);
+                },
+                'error-callback': () => {
+                  console.error('hCaptcha error occurred');
+                  setIsSubmitting(false);
+                  setFormStatus('error');
+                }
+              });
+              setHCaptchaWidgetId(widgetId);
+              console.log('hCaptcha invisible widget initialized/re-initialized from React');
+            } catch (error) {
+              console.error('Error initializing hCaptcha from React:', error);
+            }
+          }
+        }
+      } else {
+        // If hCaptcha not loaded yet, try again in a bit
+        setTimeout(initializeHCaptcha, 500);
+      }
+    };
+
+    // Wait a moment for the DOM to be ready, then initialize
+    const timeoutId = setTimeout(initializeHCaptcha, 100);
+    
+    return () => clearTimeout(timeoutId);
+  }, [darkMode]); // Add darkMode as a dependency
+
   // Technical skills with professional expertise
   const skills: string[] = [
     '🏢 Enterprise SaaS',
@@ -306,7 +372,97 @@ const PersonalWebsite = () => {
    * @param e - The change event from form inputs
    */
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    // Sanitize input for security
+    const sanitizedValue = sanitizeInput(value);
+    setFormData({ ...formData, [name]: sanitizedValue });
+  };
+
+  /**
+   * Submit form with hCaptcha token after challenge is completed
+   * @param token - The hCaptcha token from the completed challenge
+   */
+  const submitFormWithToken = async (token: string) => {
+    try {
+      console.log('=== SUBMISSION FUNCTION DEBUG ===');
+      console.log('hCaptcha token received:', token ? 'YES - ' + token.substring(0, 20) + '...' : 'NO');
+      console.log('submissionData state:', submissionData);
+      
+      // Use the stored submission data
+      if (!submissionData) {
+        console.error('ERROR: No submission data available!');
+        setFormStatus('error');
+        setIsSubmitting(false);
+        return;
+      }
+      
+      const payload = {
+        access_key: '618ea5ea-5cac-4d2f-9b2b-51bb959a95db',
+        name: submissionData.name,
+        email: submissionData.email,
+        message: submissionData.message,
+        'h-captcha-response': token,
+        subject: `New message from ${submissionData.name}`,
+        from_name: submissionData.name,
+        replyto: submissionData.email,
+      };
+      
+      console.log('=== FINAL PAYLOAD TO WEB3FORMS ===');
+      console.log('Payload:', payload);
+      console.log('Name field:', payload.name);
+      console.log('Email field:', payload.email);  
+      console.log('Message field:', payload.message);
+      console.log('Token field:', payload['h-captcha-response'] ? 'PRESENT' : 'MISSING');
+
+      const response = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      console.log('Response status:', response.status);
+      console.log('Response ok:', response.ok);
+
+      if (response.ok) {
+        const responseData = await response.json();
+        console.log('Success response:', responseData);
+        setFormStatus('success');
+        setFormData({ name: '', email: '', message: '' }); // Clear form
+        setSubmissionData(null); // Clear captured submission data
+        // Success message persists until page reload/navigation
+      } else {
+        let errorData;
+        try {
+          errorData = await response.json();
+        } catch (e) {
+          errorData = await response.text();
+        }
+        console.error('Web3Forms submission error:', errorData);
+        console.error('Error response status:', response.status);
+        console.error('Error response statusText:', response.statusText);
+        console.error('Full response headers:', [...response.headers.entries()]);
+        
+        // Check for common Web3Forms errors
+        if (response.status === 422) {
+          console.error('Validation error - check required fields');
+        } else if (response.status === 401) {
+          console.error('Access key error - invalid access key');
+        } else if (response.status === 403) {
+          console.error('Forbidden - possibly CAPTCHA verification failed');
+        }
+        
+        setFormStatus('error');
+        // Error message persists until successful resubmission
+      }
+    } catch (error) {
+      console.error('Form submission error:', error);
+      setFormStatus('error');
+      // Error message persists until successful resubmission
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   /**
@@ -330,6 +486,48 @@ const PersonalWebsite = () => {
    */
   const scrollToTop = () => {
     smoothScrollTo(0); // Uses default 1000ms duration
+  };
+
+  /**
+   * Security: Sanitize user input to prevent basic injection attempts
+   */
+  const sanitizeInput = (input: string): string => {
+    return input
+      .trim()
+      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '') // Remove script tags
+      .replace(/javascript:/gi, '') // Remove javascript: protocols
+      .replace(/on\w+\s*=/gi, '') // Remove event handlers
+      .substring(0, 5000); // Limit length
+  };
+
+  /**
+   * Security: Validate email format more strictly
+   */
+  const isValidEmail = (email: string): boolean => {
+    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+    return emailRegex.test(email) && email.length <= 254;
+  };
+
+  /**
+   * Security: Check rate limiting (max 3 submissions per 5 minutes)
+   */
+  const checkRateLimit = (): boolean => {
+    const now = Date.now();
+    const fiveMinutes = 5 * 60 * 1000;
+    
+    // Reset counter if more than 5 minutes have passed
+    if (now - lastSubmissionTime > fiveMinutes) {
+      setSubmissionCount(0);
+    }
+    
+    // Check if under rate limit
+    if (submissionCount >= 3) {
+      const timeLeft = Math.ceil((fiveMinutes - (now - lastSubmissionTime)) / 1000 / 60);
+      console.warn(`Rate limit exceeded. Please wait ${timeLeft} minutes before submitting again.`);
+      return false;
+    }
+    
+    return true;
   };
 
   return (
@@ -797,7 +995,136 @@ const PersonalWebsite = () => {
               </div>
               <div className={`${visibleSections.has('contact') ? 'animate-slide-in-right' : 'opacity-0'} mt-8 lg:mt-0`}>
                 <div className="bg-gray-100 dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-800 p-4 sm:p-6 lg:p-8 transition-colors duration-500">
-                  <form aria-label="Contact form" autoComplete="on">
+                  <form aria-label="Contact form" autoComplete="on"
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      setIsSubmitting(true);
+                      
+                      // Security: Check rate limiting first
+                      if (!checkRateLimit()) {
+                        setFormStatus('error');
+                        setIsSubmitting(false);
+                        alert('Too many submission attempts. Please wait a few minutes before trying again.');
+                        return;
+                      }
+                      
+                      // Clear any previous error status when starting new submission
+                      if (formStatus === 'error') {
+                        setFormStatus(null);
+                      }
+                      
+                      // BULLETPROOF data capture with multiple fallback methods
+                      let capturedFormData = {
+                        name: formData.name,
+                        email: formData.email,
+                        message: formData.message
+                      };
+                      
+                      // Fallback 1: Try FormData API from the form itself
+                      try {
+                        const formDataAPI = new FormData(e.target as HTMLFormElement);
+                        const nameFromForm = formDataAPI.get('name') as string;
+                        const emailFromForm = formDataAPI.get('email') as string;
+                        const messageFromForm = formDataAPI.get('message') as string;
+                        
+                        if (nameFromForm && emailFromForm && messageFromForm) {
+                          capturedFormData = {
+                            name: nameFromForm,
+                            email: emailFromForm,
+                            message: messageFromForm
+                          };
+                          console.log('Using FormData API capture');
+                        }
+                      } catch (error) {
+                        console.log('FormData API capture failed, using React state');
+                      }
+                      
+                      // Fallback 2: Direct DOM element query if other methods fail
+                      if (!capturedFormData.name || !capturedFormData.email || !capturedFormData.message) {
+                        try {
+                          const nameElement = document.getElementById('name') as HTMLInputElement;
+                          const emailElement = document.getElementById('email') as HTMLInputElement;
+                          const messageElement = document.getElementById('message') as HTMLTextAreaElement;
+                          
+                          if (nameElement?.value && emailElement?.value && messageElement?.value) {
+                            capturedFormData = {
+                              name: nameElement.value,
+                              email: emailElement.value,
+                              message: messageElement.value
+                            };
+                            console.log('Using DOM element capture');
+                          }
+                        } catch (error) {
+                          console.log('DOM element capture failed');
+                        }
+                      }
+                      
+                      console.log('=== FORM SUBMISSION DEBUG ===');
+                      console.log('Original formData state:', formData);
+                      console.log('Final captured form data:', capturedFormData);
+                      
+                      // Enhanced security validation
+                      if (!capturedFormData.name.trim() || !capturedFormData.email.trim() || !capturedFormData.message.trim()) {
+                        console.error('Form validation failed: Missing required fields');
+                        setFormStatus('error');
+                        setIsSubmitting(false);
+                        return;
+                      }
+                      
+                      // Security: Validate email format
+                      if (!isValidEmail(capturedFormData.email)) {
+                        console.error('Form validation failed: Invalid email format');
+                        setFormStatus('error');
+                        setIsSubmitting(false);
+                        alert('Please enter a valid email address.');
+                        return;
+                      }
+                      
+                      // Security: Check minimum length requirements
+                      if (capturedFormData.name.length < 2) {
+                        console.error('Form validation failed: Name too short');
+                        setFormStatus('error');
+                        setIsSubmitting(false);
+                        alert('Name must be at least 2 characters long.');
+                        return;
+                      }
+                      
+                      if (capturedFormData.message.length < 10) {
+                        console.error('Form validation failed: Message too short');
+                        setFormStatus('error');
+                        setIsSubmitting(false);
+                        alert('Message must be at least 10 characters long.');
+                        return;
+                      }
+                      
+                      // Update rate limiting counters
+                      setLastSubmissionTime(Date.now());
+                      setSubmissionCount(prev => prev + 1);
+                      
+                      // Store the captured form data
+                      setSubmissionData(capturedFormData);
+                      console.log('Stored submission data:', capturedFormData);
+                      console.log('Triggering hCaptcha...');
+                      
+                      // Trigger hCaptcha challenge popup
+                      if (typeof window !== 'undefined' && (window as any).hcaptcha && hCaptchaWidgetId) {
+                        try {
+                          console.log('Executing hCaptcha with widget ID:', hCaptchaWidgetId);
+                          (window as any).hcaptcha.execute(hCaptchaWidgetId);
+                        } catch (error) {
+                          console.error('Error executing hCaptcha:', error);
+                          setFormStatus('error');
+                          setIsSubmitting(false);
+                        }
+                      } else {
+                        console.error('hCaptcha not available or widget not initialized');
+                        console.log('hCaptcha available:', !!(window as any).hcaptcha);
+                        console.log('Widget ID:', hCaptchaWidgetId);
+                        setFormStatus('error');
+                        setIsSubmitting(false);
+                      }
+                    }}
+                  >
                     <div className="mb-4 sm:mb-6">
                       <label htmlFor="name" className="block text-sm sm:text-base text-gray-700 dark:text-gray-300 font-medium mb-2">
                         Name <span className="text-red-500">*</span>
@@ -849,12 +1176,33 @@ const PersonalWebsite = () => {
                         placeholder="Tell me about your project..."
                       ></textarea>
                     </div>
+                    <input type="text" name="_gotcha" style={{ display: 'none' }} /> {/* Honeypot for spam protection */}
+                    {/* hCaptcha will be triggered programmatically on form submit */}
+                    <div 
+                      id="hcaptcha-container"
+                      className="h-captcha" 
+                      data-sitekey="50b2fe65-b00b-4b9e-ad62-3ba471098be2"
+                      data-theme={darkMode ? "dark" : "light"}
+                      data-size="invisible"
+                      style={{ display: 'none' }}
+                    ></div>
                     <button
                       type="submit"
-                      className="w-full px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold shadow-sm hover:shadow-lg focus:ring-2 focus:ring-blue-500 focus:outline-none active:scale-95 transition-all duration-300 text-sm sm:text-base"
+                      disabled={isSubmitting}
+                      className="w-full px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold shadow-sm hover:shadow-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transform hover:-translate-y-1 active:scale-95 transition-all duration-300 text-sm sm:text-base"
                     >
-                      Send Secure Message
+                      {isSubmitting ? 'Sending...' : 'Send Secure Message'}
                     </button>
+                    {formStatus === 'success' && (
+                      <p className="mt-4 text-sm font-medium text-green-600 dark:text-green-400 flex items-center justify-center gap-2">
+                        <CheckCircle size={18} /> Message sent successfully! I'll get back to you shortly.
+                      </p>
+                    )}
+                    {formStatus === 'error' && (
+                      <p className="mt-4 text-sm font-medium text-red-600 dark:text-red-400 flex items-center justify-center gap-2">
+                        <XCircle size={18} /> Oops! Something went wrong. Please try again later.
+                      </p>
+                    )}
                     <p className="mt-3 sm:mt-4 text-xs text-gray-500 dark:text-gray-500 text-center leading-relaxed">
                       Your information is encrypted and will never be shared.
                     </p>
