@@ -47,8 +47,7 @@ const PersonalWebsite = () => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [currentSkillIndex, setCurrentSkillIndex] = useState(0);
 
-  // Store form data at submission time to avoid timing issues with hCaptcha callback
-  const [submissionData, setSubmissionData] = useState<FormData | null>(null);
+
 
   // Security: Track submission attempts for basic rate limiting
   const [lastSubmissionTime, setLastSubmissionTime] = useState<number>(0);
@@ -267,11 +266,46 @@ const PersonalWebsite = () => {
                 size: size,
                 theme: theme,
                 callback: (token: string) => {
-                  // This will be called when hCaptcha is completed
+                  // Get current submission data from the DOM or use a stored reference
                   console.log('hCaptcha completed, submitting form...');
-                  console.log('Submission data in callback:', submissionData);
-                  console.log('Current form data in callback:', formData);
-                  submitFormWithToken(token);
+                  
+                  // Get the stored data from a more reliable source
+                  const storedDataElement = document.getElementById('stored-submission-data');
+                  let currentSubmissionData = null;
+                  
+                  if (storedDataElement && storedDataElement.textContent) {
+                    try {
+                      currentSubmissionData = JSON.parse(storedDataElement.textContent);
+                      console.log('Retrieved submission data from DOM storage:', currentSubmissionData);
+                    } catch (e) {
+                      console.error('Failed to parse stored submission data');
+                    }
+                  }
+                  
+                  // Fallback: get current form values directly
+                  if (!currentSubmissionData) {
+                    const nameEl = document.getElementById('name') as HTMLInputElement;
+                    const emailEl = document.getElementById('email') as HTMLInputElement;
+                    const messageEl = document.getElementById('message') as HTMLTextAreaElement;
+                    
+                    if (nameEl?.value && emailEl?.value && messageEl?.value) {
+                      currentSubmissionData = {
+                        name: nameEl.value,
+                        email: emailEl.value,
+                        message: messageEl.value
+                      };
+                      console.log('Retrieved submission data from current DOM values:', currentSubmissionData);
+                    }
+                  }
+                  
+                  if (currentSubmissionData) {
+                    // Create a custom submission function that doesn't rely on React state
+                    submitFormDirectly(token, currentSubmissionData);
+                  } else {
+                    console.error('No submission data available in callback');
+                    setIsSubmitting(false);
+                    setFormStatus('error');
+                  }
                 },
                 'error-callback': () => {
                   console.error('hCaptcha error occurred');
@@ -379,22 +413,15 @@ const PersonalWebsite = () => {
   };
 
   /**
-   * Submit form with hCaptcha token after challenge is completed
+   * Submit form directly with token and data (doesn't rely on React state)
    * @param token - The hCaptcha token from the completed challenge
+   * @param submissionData - The form data to submit
    */
-  const submitFormWithToken = async (token: string) => {
+  const submitFormDirectly = async (token: string, submissionData: FormData) => {
     try {
-      console.log('=== SUBMISSION FUNCTION DEBUG ===');
+      console.log('=== DIRECT SUBMISSION FUNCTION DEBUG ===');
       console.log('hCaptcha token received:', token ? 'YES - ' + token.substring(0, 20) + '...' : 'NO');
-      console.log('submissionData state:', submissionData);
-      
-      // Use the stored submission data
-      if (!submissionData) {
-        console.error('ERROR: No submission data available!');
-        setFormStatus('error');
-        setIsSubmitting(false);
-        return;
-      }
+      console.log('Direct submission data:', submissionData);
       
       const payload = {
         access_key: '618ea5ea-5cac-4d2f-9b2b-51bb959a95db',
@@ -429,9 +456,12 @@ const PersonalWebsite = () => {
         const responseData = await response.json();
         console.log('Success response:', responseData);
         setFormStatus('success');
-        setFormData({ name: '', email: '', message: '' }); // Clear form
-        setSubmissionData(null); // Clear captured submission data
-        // Success message persists until page reload/navigation
+                 setFormData({ name: '', email: '', message: '' }); // Clear form
+        // Clear the stored data element
+        const storedDataElement = document.getElementById('stored-submission-data');
+        if (storedDataElement) {
+          storedDataElement.textContent = '';
+        }
       } else {
         let errorData;
         try {
@@ -454,16 +484,16 @@ const PersonalWebsite = () => {
         }
         
         setFormStatus('error');
-        // Error message persists until successful resubmission
       }
     } catch (error) {
       console.error('Form submission error:', error);
       setFormStatus('error');
-      // Error message persists until successful resubmission
     } finally {
       setIsSubmitting(false);
     }
   };
+
+
 
   /**
    * Calculate parallax effect for hero section background
@@ -490,10 +520,10 @@ const PersonalWebsite = () => {
 
   /**
    * Security: Sanitize user input to prevent basic injection attempts
+   * Note: This preserves normal typing including spaces, only removes malicious content
    */
   const sanitizeInput = (input: string): string => {
     return input
-      .trim()
       .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '') // Remove script tags
       .replace(/javascript:/gi, '') // Remove javascript: protocols
       .replace(/on\w+\s*=/gi, '') // Remove event handlers
@@ -1101,9 +1131,20 @@ const PersonalWebsite = () => {
                       setLastSubmissionTime(Date.now());
                       setSubmissionCount(prev => prev + 1);
                       
-                      // Store the captured form data
-                      setSubmissionData(capturedFormData);
-                      console.log('Stored submission data:', capturedFormData);
+                      // Store the captured form data in DOM for hCaptcha callback reliability
+                      
+                      // Also store in DOM as backup for hCaptcha callback
+                      let storedDataElement = document.getElementById('stored-submission-data');
+                      if (!storedDataElement) {
+                        storedDataElement = document.createElement('div');
+                        storedDataElement.id = 'stored-submission-data';
+                        storedDataElement.style.display = 'none';
+                        document.body.appendChild(storedDataElement);
+                      }
+                      storedDataElement.textContent = JSON.stringify(capturedFormData);
+                      
+                      console.log('Stored submission data in React state:', capturedFormData);
+                      console.log('Stored submission data in DOM element:', storedDataElement.textContent);
                       console.log('Triggering hCaptcha...');
                       
                       // Trigger hCaptcha challenge popup
