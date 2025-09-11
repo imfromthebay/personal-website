@@ -11,6 +11,21 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    sourcemap: true
+    sourcemap: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          ui: ['lucide-react']
+        }
+      }
+    },
+    minify: 'esbuild',
+    cssMinify: true,
+    reportCompressedSize: true,
+    chunkSizeWarningLimit: 600
+  },
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'lucide-react']
   }
 }) 
